@@ -10,6 +10,10 @@ export function OpenFiles() {
   return window['go']['main']['App']['OpenFiles']();
 }
 
+export function OpenFolder() {
+  return window['go']['main']['App']['OpenFolder']();
+}
+
 export function ReadFilesContent(arg1) {
   return window['go']['main']['App']['ReadFilesContent'](arg1);
 }

@@ -1,5 +1,5 @@
 <script>
-  import { OpenFiles, ReadFilesContent, ObfuscateJS } from '../wailsjs/go/main/App';
+  import { OpenFiles, OpenFolder, ReadFilesContent, ObfuscateJS } from '../wailsjs/go/main/App';
 
   let selectedFiles = [];
   let filesContent = {};
@@ -15,6 +15,18 @@
       console.error("Error opening file dialog:", error);
     }
   }
+
+  async function openFolder() {
+    try {
+      const folderFiles = await OpenFolder();
+      if (folderFiles && folderFiles.length > 0) {
+        selectedFiles = [...new Set([...selectedFiles, ...folderFiles])];
+      }
+    } catch (error) {
+      console.error("Error opening folder dialog:", error);
+    }
+  }
+
 
   async function readFilesContent() {
     if (selectedFiles.length === 0) {
@@ -57,10 +69,13 @@
 </script>
 
 <div class="p-4">
-  <button class="bg-blue-200 px-4 py-1 rounded-lg cursor-pointer" on:click={openFiles}>Open Files</button>
-  <button class="bg-blue-200 px-4 py-1 rounded-lg cursor-pointer" on:click={readFilesContent} disabled={selectedFiles.length === 0}>Read Files Content</button>
-  <button class="bg-red-200 px-4 py-1 rounded-lg cursor-pointer" on:click={removeAllFiles} disabled={selectedFiles.length === 0}>Remove All</button>
-  <button class="bg-green-600 text-white px-4 py-1 rounded-lg cursor-pointer mt-2" on:click={obfuscateAll} disabled={Object.keys(filesContent).length === 0}>Obfuscate All</button>
+  <div class="flex flex-wrap gap-1">
+    <button class="bg-blue-200 px-4 py-1 rounded-lg cursor-pointer" on:click={openFiles}>Open Files</button>
+    <button class="bg-blue-200 px-4 py-1 rounded-lg cursor-pointer" on:click={openFolder}>Open Folder</button>
+    <button class="bg-blue-200 px-4 py-1 rounded-lg cursor-pointer" on:click={readFilesContent} disabled={selectedFiles.length === 0}>Read Files Content</button>
+    <button class="bg-red-200 px-4 py-1 rounded-lg cursor-pointer" on:click={removeAllFiles} disabled={selectedFiles.length === 0}>Remove All</button>
+    <button class="bg-green-600 text-white px-4 py-1 rounded-lg cursor-pointer" on:click={obfuscateAll} disabled={Object.keys(filesContent).length === 0}>Obfuscate All</button>
+  </div>
 
   {#if selectedFiles.length > 0}
     <div class="mt-4 p-2 bg-gray-200 rounded-lg">
@@ -80,10 +95,10 @@
     <div class="mt-4 p-2 bg-gray-200 rounded-lg">
       {#each Object.entries(filesContent) as [filePath, content]}
         <h3 class="font-medium">{filePath}</h3>
-        <pre class="mb-4">{content}</pre>
+        <pre class="mb-4 whitespace-pre-wrap break-words">{content}</pre>
         {#if obfuscatedContent[filePath]}
           <h4 class="font-medium">Obfuscated:</h4>
-          <pre class="mb-4 bg-gray-300 p-2 rounded">{obfuscatedContent[filePath]}</pre>
+          <pre class="mb-4 bg-gray-300 p-2 rounded whitespace-pre-wrap break-words">{obfuscatedContent[filePath]}</pre>
         {/if}
       {/each}
     </div>

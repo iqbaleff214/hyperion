@@ -5,4 +5,6 @@ export function ObfuscateJS(arg1:string):Promise<string>;
 
 export function OpenFiles():Promise<Array<string>>;
 
+export function OpenFolder():Promise<Array<string>>;
+
 export function ReadFilesContent(arg1:Array<string>):Promise<{[key: string]: string}>;

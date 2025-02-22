@@ -2,7 +2,10 @@ package main
 
 import (
 	"context"
+	"io/fs"
 	"os"
+	"path/filepath"
+	"strings"
 
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
@@ -31,6 +34,35 @@ func (a *App) OpenFiles() ([]string, error) {
 		return nil, err
 	}
 	return selection, nil
+}
+
+func (a *App) OpenFolder() ([]string, error) {
+	folder, err := runtime.OpenDirectoryDialog(a.ctx, runtime.OpenDialogOptions{
+		Title: "Select folder",
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	if folder == "" {
+		return nil, nil
+	}
+
+	var files []string
+	err = filepath.WalkDir(folder, func(path string, d fs.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+		if !d.IsDir() && (strings.HasSuffix(path, ".js") || strings.HasSuffix(path, ".php")) {
+			files = append(files, path)
+		}
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return files, nil
 }
 
 func (a *App) ReadFilesContent(filePaths []string) (map[string]string, error) {
