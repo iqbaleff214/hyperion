@@ -10,3 +10,7 @@ body {
 #app {
     height: 100vh;
 }
+
+:root{
+    scrollbar-color: rgba(0, 0, 0, 0.5) transparent;
+}
