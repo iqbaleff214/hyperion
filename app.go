@@ -139,7 +139,25 @@ func (a *App) OpenImportedFileLocation(filePath string) error {
 	return cmd.Start()
 }
 
-func (a *App) ObfuscateJS(code string) string {
+type ObfuscationConfig struct {
+	RemoveWhiteSpace bool
+	RemoveComments   bool
+	ChangeVariable   bool
+}
+
+func DefaultObfuscationConfig() ObfuscationConfig {
+	return ObfuscationConfig{
+		RemoveWhiteSpace: true,
+		RemoveComments:   true,
+		ChangeVariable:   true,
+	}
+}
+
+func (a *App) ObfuscateJS(code string, config ObfuscationConfig) string {
+	if (config == ObfuscationConfig{}) {
+		config = DefaultObfuscationConfig()
+	}
+
 	obfuscator := NewObfuscator()
-	return obfuscator.Obfuscate(code)
+	return obfuscator.Obfuscate(code, config)
 }

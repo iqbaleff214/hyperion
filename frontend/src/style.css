@@ -3,23 +3,28 @@
 body {
     margin: 0;
     font-family: "Nunito", -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto",
-    "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
-    sans-serif;
+        "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
+        sans-serif;
 }
 
-button{
-    --wails-draggable:false
+button,
+label {
+    --wails-draggable: false
+}
+
+label{
+    @apply accent-sky-600;
 }
 
 #app {
     height: 100vh;
 }
 
-*{
+* {
     scrollbar-color: rgba(95, 95, 95, 0.5) transparent;
     @apply select-none;
 }
 
-pre{
+pre {
     @apply select-text;
 }

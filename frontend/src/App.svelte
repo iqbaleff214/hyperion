@@ -1,4 +1,6 @@
 <script>
+  // @ts-nocheck
+
   import {
     OpenFiles,
     OpenFolder,
@@ -9,6 +11,8 @@
   } from "../wailsjs/go/main/App";
 
   import logo from "/src/assets/images/hyperion-blue.png";
+  import { writable } from "svelte/store";
+  import { obfuscationConfig } from "./configStore";
 
   let selectedFiles = [];
   let filesContent = {};
@@ -60,7 +64,8 @@
       filesContent = { ...filesContent, ...newFilesContent };
 
       for (let filePath of Object.keys(filesContent)) {
-        obfuscatedContent[filePath] = await ObfuscateJS(filesContent[filePath]);
+        obfuscatedContent[filePath] = await ObfuscateJS(filesContent[filePath], { ...$obfuscationConfig });
+
       }
     } catch (error) {
       console.error("Error processing files:", error);
@@ -119,8 +124,17 @@
   }
 </script>
 
-<div class="flex flex-col h-full transition-colors duration-300 {isFullscreen?'bg-white dark:bg-neutral-900':isMac?'bg-white/50 dark:bg-neutral-900/50':''}">
-  <div style="--wails-draggable:drag; padding-top: {isMac ? '32px' : '8px'}" class="flex flex-wrap gap-1 px-4 pb-2">
+<div
+  class="flex flex-col h-full transition-colors duration-300 {isFullscreen
+    ? 'bg-white dark:bg-neutral-900'
+    : isMac
+      ? 'bg-white/50 dark:bg-neutral-900/50'
+      : ''}"
+>
+  <div
+    style="--wails-draggable:drag; padding-top: {isMac ? '32px' : '8px'}"
+    class="flex flex-wrap gap-1 px-4 pb-2"
+  >
     <button
       class="bg-white dark:bg-neutral-900 text-sm border border-black/15 dark:border-white/15 text-black dark:text-white disabled:text-black/50 dark:disabled:text-white/50 px-3 py-1 rounded enabled:cursor-pointer flex gap-1 items-center"
       on:click={openFiles}
@@ -236,18 +250,45 @@
       >
       Export All
     </button>
+    <div class="flex flex-wrap gap-1">
+      <label class="bg-white dark:bg-neutral-900 text-sm border border-black/15 dark:border-white/15 text-black dark:text-white disabled:text-black/50 dark:disabled:text-white/50 px-3 py-1 rounded enabled:cursor-pointer flex gap-1 items-center">
+        <input type="checkbox" bind:checked={$obfuscationConfig.removeWhiteSpace} />
+        Remove Whitespace
+      </label>
+      
+      <label class="bg-white dark:bg-neutral-900 text-sm border border-black/15 dark:border-white/15 text-black dark:text-white disabled:text-black/50 dark:disabled:text-white/50 px-3 py-1 rounded enabled:cursor-pointer flex gap-1 items-center">
+        <input type="checkbox" bind:checked={$obfuscationConfig.removeComments} />
+        Remove Comments
+      </label>
+      
+      <label class="bg-white dark:bg-neutral-900 text-sm border border-black/15 dark:border-white/15 text-black dark:text-white disabled:text-black/50 dark:disabled:text-white/50 px-3 py-1 rounded enabled:cursor-pointer flex gap-1 items-center">
+        <input type="checkbox" bind:checked={$obfuscationConfig.changeVariable} />
+        Change Variable Names
+      </label>
+    </div>
   </div>
   {#if selectedFiles.length === 0}
-  <div class="flex flex-grow w-full p-20 overflow-hidden">
-    <img class="mx-auto my-auto object-scale-down max-h-full max-h-full grayscale opacity-25" src={logo} alt="app logo">
-  </div>
+    <div class="flex flex-grow w-full p-20 overflow-hidden">
+      <img
+        class="mx-auto my-auto object-scale-down max-h-full max-h-full grayscale opacity-25"
+        src={logo}
+        alt="app logo"
+      />
+    </div>
   {/if}
-  <div class="p-4 pt-0 flex flex-col gap-2 overflow-auto flex-grow {selectedFiles.length == 0?'hidden':''}">
+  <div
+    class="p-4 pt-0 flex flex-col gap-2 overflow-auto flex-grow {selectedFiles.length ==
+    0
+      ? 'hidden'
+      : ''}"
+  >
     {#if selectedFiles.length > 0}
       <div class="flex flex-col gap-2">
         <ul class="flex flex-col gap-2">
           {#each selectedFiles as file, index}
-            <li class="bg-white dark:bg-neutral-900 border border-black/15 dark:border-white/15 dark:text-white p-2 rounded-lg">
+            <li
+              class="bg-white dark:bg-neutral-900 border border-black/15 dark:border-white/15 dark:text-white p-2 rounded-lg"
+            >
               <div class="flex items-center">
                 <div class="py-1 pl-1 me-auto">
                   <span class="">{getFileName(file)}</span>
@@ -301,12 +342,16 @@
         </ul>
       </div>
     {/if}
-  
+
     {#if Object.keys(filesContent).length > 0}
       <div class="flex flex-col gap-2">
         {#each Object.entries(filesContent) as [filePath, content]}
-          <div class="bg-white dark:bg-neutral-900 border border-black/15 dark:border-white/15 dark:text-white rounded-lg">
-            <div class="p-4 flex flex-col sm:flex-row gap-2 w-full md:items-center border-b border-black/15">
+          <div
+            class="bg-white dark:bg-neutral-900 border border-black/15 dark:border-white/15 dark:text-white rounded-lg"
+          >
+            <div
+              class="p-4 flex flex-col sm:flex-row gap-2 w-full md:items-center border-b border-black/15"
+            >
               <div class="">
                 {getFileName(filePath)}
                 <div class="text-xs text-neutral-500">{filePath}</div>

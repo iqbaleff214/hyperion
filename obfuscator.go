@@ -28,19 +28,21 @@ func (o *Obfuscator) randomVarName() string {
 	return name
 }
 
-func (o *Obfuscator) Obfuscate(jsCode string) string {
-	// Obfuscate variable names
-	varRegex := regexp.MustCompile(`\b(var|let|const)\s+([a-zA-Z_$][a-zA-Z0-9_$]*)\b`)
-	jsCode = varRegex.ReplaceAllStringFunc(jsCode, func(match string) string {
-		parts := varRegex.FindStringSubmatch(match)
-		keyword, varName := parts[1], parts[2]
+func (o *Obfuscator) Obfuscate(jsCode string, config ObfuscationConfig) string {
+	if config.ChangeVariable {
+		// Obfuscate variable names
+		varRegex := regexp.MustCompile(`\b(var|let|const)\s+([a-zA-Z_$][a-zA-Z0-9_$]*)\b`)
+		jsCode = varRegex.ReplaceAllStringFunc(jsCode, func(match string) string {
+			parts := varRegex.FindStringSubmatch(match)
+			keyword, varName := parts[1], parts[2]
 
-		if _, exists := o.variableMap[varName]; !exists {
-			o.variableMap[varName] = o.randomVarName()
-		}
+			if _, exists := o.variableMap[varName]; !exists {
+				o.variableMap[varName] = o.randomVarName()
+			}
 
-		return fmt.Sprintf("%s %s", keyword, o.variableMap[varName])
-	})
+			return fmt.Sprintf("%s %s", keyword, o.variableMap[varName])
+		})
+	}
 
 	// Obfuscate normal strings (single and double quotes)
 	stringRegex := regexp.MustCompile(`"([^"]*)"|'([^']*)'`)
@@ -99,26 +101,32 @@ func (o *Obfuscator) Obfuscate(jsCode string) string {
 
 		return "`" + encoded.String() + "`"
 	})
-	// Replace variable names inside the entire JS code
-	for original, obfuscated := range o.variableMap {
-		jsCode = strings.ReplaceAll(jsCode, original, obfuscated)
+
+	if config.ChangeVariable {
+		// Replace variable names inside the entire JS code
+		for original, obfuscated := range o.variableMap {
+			jsCode = strings.ReplaceAll(jsCode, original, obfuscated)
+		}
 	}
 
-	// Remove single-line and multi-line comments
-	commentRegex := regexp.MustCompile(`(?s)/\*.*?\*/|(?m)^\s*//.*?$`)
-	jsCode = commentRegex.ReplaceAllString(jsCode, "")
+	if config.RemoveComments {
+		// Remove single-line and multi-line comments
+		commentRegex := regexp.MustCompile(`(?s)/\*.*?\*/|(?m)^\s*//.*?$`)
+		jsCode = commentRegex.ReplaceAllString(jsCode, "")
+		// Remove empty lines
+		emptyLineRegex := regexp.MustCompile(`(?m)^\s*\n`)
+		jsCode = emptyLineRegex.ReplaceAllString(jsCode, "")
+	}
 
-	// Remove empty lines
-	emptyLineRegex := regexp.MustCompile(`(?m)^\s*\n`)
-	jsCode = emptyLineRegex.ReplaceAllString(jsCode, "")
+	if config.RemoveWhiteSpace {
+		// Ensure each line ends with a semicolon if it doesn't already
+		semicolonRegex := regexp.MustCompile(`(?m)([^\s;])\s*$`)
+		jsCode = semicolonRegex.ReplaceAllString(jsCode, "$1;")
 
-	// Ensure each line ends with a semicolon if it doesn't already
-	semicolonRegex := regexp.MustCompile(`(?m)([^\s;])\s*$`)
-	jsCode = semicolonRegex.ReplaceAllString(jsCode, "$1;")
-
-	// Remove all unnecessary whitespace
-	jsCode = regexp.MustCompile(`\s+`).ReplaceAllString(jsCode, " ")
-	jsCode = regexp.MustCompile(`\s*([=+\-*/{}(),;])\s*`).ReplaceAllString(jsCode, "$1")
+		// Remove all unnecessary whitespace
+		jsCode = regexp.MustCompile(`\s+`).ReplaceAllString(jsCode, " ")
+		jsCode = regexp.MustCompile(`\s*([=+\-*/{}(),;])\s*`).ReplaceAllString(jsCode, "$1")
+	}
 
 	return jsCode
 

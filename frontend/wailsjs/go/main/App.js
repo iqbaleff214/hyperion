@@ -6,8 +6,8 @@ export function ExportEncryptedFiles(arg1) {
   return window['go']['main']['App']['ExportEncryptedFiles'](arg1);
 }
 
-export function ObfuscateJS(arg1) {
-  return window['go']['main']['App']['ObfuscateJS'](arg1);
+export function ObfuscateJS(arg1, arg2) {
+  return window['go']['main']['App']['ObfuscateJS'](arg1, arg2);
 }
 
 export function OpenFiles() {
