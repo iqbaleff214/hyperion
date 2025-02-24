@@ -111,7 +111,7 @@
 <div class="flex flex-col h-full">
   <div style="--wails-draggable:drag; padding-top: {isMac ? '32px' : '8px'}" class="flex flex-wrap gap-1 px-4 pb-2">
     <button
-      class="bg-white dark:bg-neutral-900 text-sm border border-black/15 dark:border-white/15 text-black dark:text-white disabled:text-black/50 disabled:text-white/50 px-3 py-1 rounded enabled:cursor-pointer flex gap-1 items-center"
+      class="bg-white dark:bg-neutral-900 text-sm border border-black/15 dark:border-white/15 text-black dark:text-white disabled:text-black/50 dark:disabled:text-white/50 px-3 py-1 rounded enabled:cursor-pointer flex gap-1 items-center"
       on:click={openFiles}
     >
       <svg
@@ -134,7 +134,7 @@
       Open Files
     </button>
     <button
-      class="bg-white dark:bg-neutral-900 text-sm border border-black/15 dark:border-white/15 text-black dark:text-white disabled:text-black/50 disabled:text-white/50 px-3 py-1 rounded enabled:cursor-pointer flex gap-1 items-center"
+      class="bg-white dark:bg-neutral-900 text-sm border border-black/15 dark:border-white/15 text-black dark:text-white disabled:text-black/50 dark:disabled:text-white/50 px-3 py-1 rounded enabled:cursor-pointer flex gap-1 items-center"
       on:click={openFolder}
     >
       <svg
@@ -155,7 +155,7 @@
       Open Folder
     </button>
     <button
-      class="bg-white dark:bg-neutral-900 text-sm border border-black/15 dark:border-white/15 text-black dark:text-white disabled:text-black/50 disabled:text-white/50 px-3 py-1 rounded enabled:cursor-pointer flex gap-1 items-center"
+      class="bg-white dark:bg-neutral-900 text-sm border border-black/15 dark:border-white/15 text-black dark:text-white disabled:text-black/50 dark:disabled:text-white/50 px-3 py-1 rounded enabled:cursor-pointer flex gap-1 items-center"
       on:click={removeAllFiles}
       disabled={selectedFiles.length === 0}
     >
@@ -182,7 +182,7 @@
       Remove All
     </button>
     <button
-      class="bg-white dark:bg-neutral-900 text-sm border border-black/15 dark:border-white/15 text-black dark:text-white disabled:text-black/50 disabled:text-white/50 px-3 py-1 rounded enabled:cursor-pointer flex gap-1 items-center"
+      class="bg-white dark:bg-neutral-900 text-sm border border-black/15 dark:border-white/15 text-black dark:text-white disabled:text-black/50 dark:disabled:text-white/50 px-3 py-1 rounded enabled:cursor-pointer flex gap-1 items-center"
       on:click={obfuscateAll}
       disabled={selectedFiles.length === 0}
     >
@@ -204,7 +204,7 @@
       Obfuscate All
     </button>
     <button
-      class="bg-white dark:bg-neutral-900 text-sm border border-black/15 dark:border-white/15 text-black dark:text-white disabled:text-black/50 disabled:text-white/50 px-3 py-1 rounded enabled:cursor-pointer flex gap-1 items-center"
+      class="bg-white dark:bg-neutral-900 text-sm border border-black/15 dark:border-white/15 text-black dark:text-white disabled:text-black/50 dark:disabled:text-white/50 px-3 py-1 rounded enabled:cursor-pointer flex gap-1 items-center"
       on:click={exportFiles}
       disabled={Object.keys(obfuscatedContent).length === 0}
     >
@@ -243,7 +243,7 @@
                   <div class="text-xs text-neutral-500">{file}</div>
                 </div>
                 <button
-                  class="bg-white dark:bg-neutral-900 text-sm border border-black/15 dark:border-white/15 text-black dark:text-white disabled:text-black/50 disabled:text-white/50 px-3 py-1 rounded enabled:cursor-pointer flex gap-1 items-center"
+                  class="bg-white dark:bg-neutral-900 text-sm border border-black/15 dark:border-white/15 text-black dark:text-white disabled:text-black/50 dark:disabled:text-white/50 px-3 py-1 rounded enabled:cursor-pointer flex gap-1 items-center"
                   on:click={() => openImportedFolder(file)}
                 >
                   <svg
