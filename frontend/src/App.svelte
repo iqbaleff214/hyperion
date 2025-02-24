@@ -8,6 +8,8 @@
     OpenImportedFileLocation,
   } from "../wailsjs/go/main/App";
 
+  import logo from "/src/assets/images/hyperion-blue.png";
+
   let selectedFiles = [];
   let filesContent = {};
   let obfuscatedContent = {};
@@ -109,7 +111,7 @@
 <div class="flex flex-col h-full">
   <div style="--wails-draggable:drag; padding-top: {isMac ? '32px' : '8px'}" class="flex flex-wrap gap-1 px-4 pb-2">
     <button
-      class="bg-white text-sm border border-black/15 text-black disabled:text-black/50 px-3 py-1 rounded enabled:cursor-pointer flex gap-1 items-center"
+      class="bg-white dark:bg-neutral-900 text-sm border border-black/15 dark:border-white/15 text-black dark:text-white disabled:text-black/50 disabled:text-white/50 px-3 py-1 rounded enabled:cursor-pointer flex gap-1 items-center"
       on:click={openFiles}
     >
       <svg
@@ -132,7 +134,7 @@
       Open Files
     </button>
     <button
-      class="bg-white text-sm border border-black/15 text-black disabled:text-black/50 px-3 py-1 rounded enabled:cursor-pointer flex gap-1 items-center"
+      class="bg-white dark:bg-neutral-900 text-sm border border-black/15 dark:border-white/15 text-black dark:text-white disabled:text-black/50 disabled:text-white/50 px-3 py-1 rounded enabled:cursor-pointer flex gap-1 items-center"
       on:click={openFolder}
     >
       <svg
@@ -153,7 +155,7 @@
       Open Folder
     </button>
     <button
-      class="bg-white text-sm border border-black/15 text-black disabled:text-black/50 px-3 py-1 rounded enabled:cursor-pointer flex gap-1 items-center"
+      class="bg-white dark:bg-neutral-900 text-sm border border-black/15 dark:border-white/15 text-black dark:text-white disabled:text-black/50 disabled:text-white/50 px-3 py-1 rounded enabled:cursor-pointer flex gap-1 items-center"
       on:click={removeAllFiles}
       disabled={selectedFiles.length === 0}
     >
@@ -180,7 +182,7 @@
       Remove All
     </button>
     <button
-      class="bg-white text-sm border border-black/15 text-black disabled:text-black/50 px-3 py-1 rounded enabled:cursor-pointer flex gap-1 items-center"
+      class="bg-white dark:bg-neutral-900 text-sm border border-black/15 dark:border-white/15 text-black dark:text-white disabled:text-black/50 disabled:text-white/50 px-3 py-1 rounded enabled:cursor-pointer flex gap-1 items-center"
       on:click={obfuscateAll}
       disabled={selectedFiles.length === 0}
     >
@@ -202,7 +204,7 @@
       Obfuscate All
     </button>
     <button
-      class="bg-white text-sm border border-black/15 text-black disabled:text-black/50 px-3 py-1 rounded enabled:cursor-pointer flex gap-1 items-center"
+      class="bg-white dark:bg-neutral-900 text-sm border border-black/15 dark:border-white/15 text-black dark:text-white disabled:text-black/50 disabled:text-white/50 px-3 py-1 rounded enabled:cursor-pointer flex gap-1 items-center"
       on:click={exportFiles}
       disabled={Object.keys(obfuscatedContent).length === 0}
     >
@@ -224,19 +226,24 @@
       Export All
     </button>
   </div>
-  <div class="p-4 pt-0 flex flex-col gap-2 overflow-auto flex-grow">
+  {#if selectedFiles.length === 0}
+  <div class="flex flex-grow w-full p-20 overflow-hidden">
+    <img class="mx-auto my-auto object-scale-down max-h-full max-h-full grayscale opacity-25" src={logo} alt="app logo">
+  </div>
+  {/if}
+  <div class="p-4 pt-0 flex flex-col gap-2 overflow-auto flex-grow {selectedFiles.length == 0?'hidden':''}">
     {#if selectedFiles.length > 0}
       <div class="flex flex-col gap-2">
         <ul class="flex flex-col gap-2">
           {#each selectedFiles as file, index}
-            <li class="bg-white p-2 rounded-lg border border-black/15">
+            <li class="bg-white dark:bg-neutral-900 border border-black/15 dark:border-white/15 dark:text-white p-2 rounded-lg">
               <div class="flex items-center">
                 <div class="py-1 pl-1 me-auto">
                   <span class="">{getFileName(file)}</span>
-                  <div class="text-xs text-gray-500">{file}</div>
+                  <div class="text-xs text-neutral-500">{file}</div>
                 </div>
                 <button
-                  class="bg-white text-sm border border-black/15 text-black disabled:text-black/50 px-3 py-1 rounded enabled:cursor-pointer flex gap-1 items-center"
+                  class="bg-white dark:bg-neutral-900 text-sm border border-black/15 dark:border-white/15 text-black dark:text-white disabled:text-black/50 disabled:text-white/50 px-3 py-1 rounded enabled:cursor-pointer flex gap-1 items-center"
                   on:click={() => openImportedFolder(file)}
                 >
                   <svg
@@ -258,7 +265,7 @@
                 </button>
                 <!-- svelte-ignore a11y_consider_explicit_label -->
                 <button
-                  class="bg-white px-3 py-3 cursor-pointer flex gap-1 items-center"
+                  class="dark:text-white px-3 py-3 cursor-pointer flex gap-1 items-center"
                   on:click={() => removeFile(index)}
                 >
                   <svg
@@ -287,15 +294,15 @@
     {#if Object.keys(filesContent).length > 0}
       <div class="flex flex-col gap-2">
         {#each Object.entries(filesContent) as [filePath, content]}
-          <div class="bg-white border border-black/15 rounded-lg">
+          <div class="bg-white dark:bg-neutral-900 border border-black/15 dark:border-white/15 dark:text-white rounded-lg">
             <div class="p-4 flex flex-col sm:flex-row gap-2 w-full md:items-center border-b border-black/15">
               <div class="">
                 {getFileName(filePath)}
-                <div class="text-xs text-gray-500">{filePath}</div>
+                <div class="text-xs text-neutral-500">{filePath}</div>
               </div>
               <div class="flex ms-auto gap-1">
                 <button
-                  class="bg-white text-sm border border-black/15 px-3 py-1 rounded cursor-pointer flex gap-1 items-center"
+                  class="bg-white dark:bg-neutral-900 text-sm border border-black/15 dark:border-white/15 px-3 py-1 rounded cursor-pointer flex gap-1 items-center"
                   on:click={() => toggleShowCode(filePath)}
                 >
                   <svg
@@ -318,7 +325,7 @@
                   {showContent[filePath] ? "Hide Code" : "Show Code"}
                 </button>
                 <button
-                  class="bg-white text-sm border border-black/15 px-3 py-1 rounded cursor-pointer flex gap-1 items-center"
+                  class="bg-white dark:bg-neutral-900 text-sm border border-black/15 dark:border-white/15 px-3 py-1 rounded cursor-pointer flex gap-1 items-center"
                   on:click={() => copyOutput(obfuscatedContent[filePath])}
                 >
                   <svg
