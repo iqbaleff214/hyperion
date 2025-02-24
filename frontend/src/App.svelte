@@ -17,11 +17,15 @@
   let isMac = navigator.userAgent.includes("Mac");
   let isFullscreen = false;
 
-  function checkFullscreen() {
-    isFullscreen = window.outerHeight === screen.height;
+  async function checkFullscreen() {
+    isFullscreen = await window.runtime.WindowIsFullscreen();
   }
 
   window.addEventListener("resize", checkFullscreen);
+
+  setTimeout(() => {
+    checkFullscreen();
+  }, 500);
 
   async function openFiles() {
     try {
@@ -115,7 +119,7 @@
   }
 </script>
 
-<div class="flex flex-col h-full {isMac?isFullscreen?'bg-white dark:bg-neutral-900':'bg-white/50 dark:bg-neutral-900/50':''}">
+<div class="flex flex-col h-full transition-colors duration-300 {isFullscreen?'bg-white dark:bg-neutral-900':isMac?'bg-white/50 dark:bg-neutral-900/50':''}">
   <div style="--wails-draggable:drag; padding-top: {isMac ? '32px' : '8px'}" class="flex flex-wrap gap-1 px-4 pb-2">
     <button
       class="bg-white dark:bg-neutral-900 text-sm border border-black/15 dark:border-white/15 text-black dark:text-white disabled:text-black/50 dark:disabled:text-white/50 px-3 py-1 rounded enabled:cursor-pointer flex gap-1 items-center"
