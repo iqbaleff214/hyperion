@@ -7,10 +7,19 @@ body {
     sans-serif;
 }
 
+button{
+    --wails-draggable:false
+}
+
 #app {
     height: 100vh;
 }
 
-:root{
+*{
     scrollbar-color: rgba(0, 0, 0, 0.5) transparent;
+    @apply select-none;
+}
+
+pre{
+    @apply select-text;
 }
