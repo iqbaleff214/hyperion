@@ -12,6 +12,7 @@
   let filesContent = {};
   let obfuscatedContent = {};
   let showContent = {};
+  let isMac = navigator.userAgent.includes("Mac");
 
   async function openFiles() {
     try {
@@ -106,7 +107,7 @@
 </script>
 
 <div class="flex flex-col h-full">
-  <div style="--wails-draggable:drag" class="flex flex-wrap gap-1 px-4 py-2">
+  <div style="--wails-draggable:drag; padding-top: {isMac ? '32px' : '8px'}" class="flex flex-wrap gap-1 px-4 pb-2">
     <button
       class="bg-white text-sm border border-black/15 text-black disabled:text-black/50 px-3 py-1 rounded enabled:cursor-pointer flex gap-1 items-center"
       on:click={openFiles}
