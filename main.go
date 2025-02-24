@@ -40,9 +40,15 @@ func main() {
 		},
 		Mac: &mac.Options{
 			TitleBar: &mac.TitleBar{
-				FullSizeContent: true,
+				TitlebarAppearsTransparent: true,
+				HideTitle:                  false,
+				HideTitleBar:               false,
+				FullSizeContent:            true,
+				UseToolbar:                 false,
+				HideToolbarSeparator:       true,
 			},
-			WindowIsTranslucent: true,
+			WebviewIsTransparent: true,
+			WindowIsTranslucent:  true,
 		},
 		Linux: &linux.Options{
 			WindowIsTranslucent: true,
