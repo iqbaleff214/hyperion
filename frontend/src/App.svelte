@@ -52,6 +52,10 @@
       console.error("Error opening folder dialog:", error);
     }
   }
+  
+  function toggleConfig() {
+    document.getElementById('config-container').classList.toggle('hidden');
+  }
 
   async function obfuscateAll() {
     if (selectedFiles.length === 0) {
@@ -124,6 +128,32 @@
   }
 </script>
 
+<div id="config-container" class="fixed px-2 pb-2 h-full w-full z-1 flex hidden">
+  <!-- svelte-ignore a11y_no_static_element_interactions -->
+  <!-- svelte-ignore a11y_click_events_have_key_events -->
+  <div on:click={toggleConfig} class="fixed h-full w-full top-0 left-0"></div>
+  <div class="relative bg-neutral-100 dark:bg-neutral-800 flex flex-col gap-1 max-w-full h-full p-2 pt-10 border border-black/15 dark:border-white/15 rounded-lg shadow-xl">
+    <!-- svelte-ignore a11y_no_static_element_interactions -->
+    <!-- svelte-ignore a11y_click_events_have_key_events -->
+    <div on:click={toggleConfig} class="absolute top-2 right-2 dark:text-white p-1 cursor-pointer">
+      <svg  xmlns="http://www.w3.org/2000/svg"  width="18"  height="18"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-x"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M18 6l-12 12" /><path d="M6 6l12 12" /></svg>
+    </div>
+    <label class="bg-white dark:bg-neutral-900 text-sm border border-black/15 dark:border-white/15 text-black dark:text-white disabled:text-black/50 dark:disabled:text-white/50 px-3 py-1 rounded enabled:cursor-pointer flex gap-1 items-center">
+      <input type="checkbox" bind:checked={$obfuscationConfig.removeWhiteSpace} />
+      Remove Whitespace
+    </label>
+    
+    <label class="bg-white dark:bg-neutral-900 text-sm border border-black/15 dark:border-white/15 text-black dark:text-white disabled:text-black/50 dark:disabled:text-white/50 px-3 py-1 rounded enabled:cursor-pointer flex gap-1 items-center">
+      <input type="checkbox" bind:checked={$obfuscationConfig.removeComments} />
+      Remove Comments
+    </label>
+    
+    <label class="bg-white dark:bg-neutral-900 text-sm border border-black/15 dark:border-white/15 text-black dark:text-white disabled:text-black/50 dark:disabled:text-white/50 px-3 py-1 rounded enabled:cursor-pointer flex gap-1 items-center">
+      <input type="checkbox" bind:checked={$obfuscationConfig.changeVariable} />
+      Change Variable Names
+    </label>
+  </div>
+</div>
 <div
   class="flex flex-col h-full transition-colors duration-300 {isFullscreen
     ? 'bg-white dark:bg-neutral-900'
@@ -135,6 +165,13 @@
     style="--wails-draggable:drag; padding-top: {isMac ? '32px' : '8px'}"
     class="flex flex-wrap gap-1 px-4 pb-2"
   >
+    <!-- svelte-ignore a11y_consider_explicit_label -->
+    <button
+      class="bg-white dark:bg-neutral-900 text-sm border border-black/15 dark:border-white/15 text-black dark:text-white disabled:text-black/50 dark:disabled:text-white/50 px-1.5 py-1 rounded enabled:cursor-pointer flex gap-1 items-center"
+      on:click={toggleConfig}
+    >
+    <svg  xmlns="http://www.w3.org/2000/svg"  width="18"  height="18"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-settings"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M10.325 4.317c.426 -1.756 2.924 -1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543 -.94 3.31 .826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756 .426 1.756 2.924 0 3.35a1.724 1.724 0 0 0 -1.066 2.573c.94 1.543 -.826 3.31 -2.37 2.37a1.724 1.724 0 0 0 -2.572 1.065c-.426 1.756 -2.924 1.756 -3.35 0a1.724 1.724 0 0 0 -2.573 -1.066c-1.543 .94 -3.31 -.826 -2.37 -2.37a1.724 1.724 0 0 0 -1.065 -2.572c-1.756 -.426 -1.756 -2.924 0 -3.35a1.724 1.724 0 0 0 1.066 -2.573c-.94 -1.543 .826 -3.31 2.37 -2.37c1 .608 2.296 .07 2.572 -1.065z" /><path d="M9 12a3 3 0 1 0 6 0a3 3 0 0 0 -6 0" /></svg>
+    </button>
     <button
       class="bg-white dark:bg-neutral-900 text-sm border border-black/15 dark:border-white/15 text-black dark:text-white disabled:text-black/50 dark:disabled:text-white/50 px-3 py-1 rounded enabled:cursor-pointer flex gap-1 items-center"
       on:click={openFiles}
@@ -250,22 +287,6 @@
       >
       Export All
     </button>
-    <div class="flex flex-wrap gap-1">
-      <label class="bg-white dark:bg-neutral-900 text-sm border border-black/15 dark:border-white/15 text-black dark:text-white disabled:text-black/50 dark:disabled:text-white/50 px-3 py-1 rounded enabled:cursor-pointer flex gap-1 items-center">
-        <input type="checkbox" bind:checked={$obfuscationConfig.removeWhiteSpace} />
-        Remove Whitespace
-      </label>
-      
-      <label class="bg-white dark:bg-neutral-900 text-sm border border-black/15 dark:border-white/15 text-black dark:text-white disabled:text-black/50 dark:disabled:text-white/50 px-3 py-1 rounded enabled:cursor-pointer flex gap-1 items-center">
-        <input type="checkbox" bind:checked={$obfuscationConfig.removeComments} />
-        Remove Comments
-      </label>
-      
-      <label class="bg-white dark:bg-neutral-900 text-sm border border-black/15 dark:border-white/15 text-black dark:text-white disabled:text-black/50 dark:disabled:text-white/50 px-3 py-1 rounded enabled:cursor-pointer flex gap-1 items-center">
-        <input type="checkbox" bind:checked={$obfuscationConfig.changeVariable} />
-        Change Variable Names
-      </label>
-    </div>
   </div>
   {#if selectedFiles.length === 0}
     <div class="flex flex-grow w-full p-20 overflow-hidden">
