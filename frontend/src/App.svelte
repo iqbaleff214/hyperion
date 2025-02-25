@@ -132,26 +132,31 @@
   <!-- svelte-ignore a11y_no_static_element_interactions -->
   <!-- svelte-ignore a11y_click_events_have_key_events -->
   <div on:click={toggleConfig} class="fixed h-full w-full top-0 left-0"></div>
-  <div class="relative bg-neutral-100 dark:bg-neutral-800 flex flex-col gap-1 max-w-full h-full p-2 pt-10 border border-black/15 dark:border-white/15 rounded-lg shadow-xl">
-    <!-- svelte-ignore a11y_no_static_element_interactions -->
-    <!-- svelte-ignore a11y_click_events_have_key_events -->
-    <div on:click={toggleConfig} class="absolute top-2 right-2 dark:text-white p-1 cursor-pointer">
-      <svg  xmlns="http://www.w3.org/2000/svg"  width="18"  height="18"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-x"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M18 6l-12 12" /><path d="M6 6l12 12" /></svg>
-    </div>
-    <label class="bg-white dark:bg-neutral-900 text-sm border border-black/15 dark:border-white/15 text-black dark:text-white disabled:text-black/50 dark:disabled:text-white/50 px-3 py-1 rounded enabled:cursor-pointer flex gap-1 items-center">
-      <input type="checkbox" bind:checked={$obfuscationConfig.removeWhiteSpace} />
-      Remove Whitespace
-    </label>
-    
-    <label class="bg-white dark:bg-neutral-900 text-sm border border-black/15 dark:border-white/15 text-black dark:text-white disabled:text-black/50 dark:disabled:text-white/50 px-3 py-1 rounded enabled:cursor-pointer flex gap-1 items-center">
-      <input type="checkbox" bind:checked={$obfuscationConfig.removeComments} />
-      Remove Comments
-    </label>
-    
-    <label class="bg-white dark:bg-neutral-900 text-sm border border-black/15 dark:border-white/15 text-black dark:text-white disabled:text-black/50 dark:disabled:text-white/50 px-3 py-1 rounded enabled:cursor-pointer flex gap-1 items-center">
-      <input type="checkbox" bind:checked={$obfuscationConfig.changeVariable} />
-      Change Variable Names
-    </label>
+  <div class="relative bg-neutral-100 dark:bg-neutral-800 max-w-full h-full border border-black/15 dark:border-white/15 rounded-lg shadow-xl">
+    <div class="flex flex-col gap-1 p-2 overflow-auto mt-[40px] h-[calc(100%-40px)]">
+      <div class="absolute top-0 left-0 w-full flex items-center">
+        <div class="ms-4 text-sm">Obfucator Config</div>
+          <!-- svelte-ignore a11y_no_static_element_interactions -->
+          <!-- svelte-ignore a11y_click_events_have_key_events -->
+          <div on:click={toggleConfig} class="ms-auto dark:text-white p-3 cursor-pointer">
+            <svg  xmlns="http://www.w3.org/2000/svg"  width="18"  height="18"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-x"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M18 6l-12 12" /><path d="M6 6l12 12" /></svg>
+          </div>
+        </div>
+       <label class="bg-white dark:bg-neutral-900 text-sm border border-black/15 dark:border-white/15 text-black dark:text-white disabled:text-black/50 dark:disabled:text-white/50 px-3 py-2 rounded-lg cursor-pointer flex gap-1.5 items-center">
+         <input type="checkbox" bind:checked={$obfuscationConfig.removeWhiteSpace} />
+         Remove Whitespace
+       </label>
+       
+       <label class="bg-white dark:bg-neutral-900 text-sm border border-black/15 dark:border-white/15 text-black dark:text-white disabled:text-black/50 dark:disabled:text-white/50 px-3 py-2 rounded-lg cursor-pointer flex gap-1.5 items-center">
+         <input type="checkbox" bind:checked={$obfuscationConfig.removeComments} />
+         Remove Comments
+       </label>
+       
+       <label class="bg-white dark:bg-neutral-900 text-sm border border-black/15 dark:border-white/15 text-black dark:text-white disabled:text-black/50 dark:disabled:text-white/50 px-3 py-2 rounded-lg cursor-pointer flex gap-1.5 items-center">
+         <input type="checkbox" bind:checked={$obfuscationConfig.changeVariable} />
+         Change Variable Names
+       </label>
+     </div>
   </div>
 </div>
 <div
