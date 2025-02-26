@@ -23,7 +23,7 @@ func main() {
 		Title:     "hyperion",
 		Width:     1024,
 		Height:    768,
-		MinWidth:  400,
+		MinWidth:  600,
 		MinHeight: 400,
 		AssetServer: &assetserver.Options{
 			Assets: assets,
