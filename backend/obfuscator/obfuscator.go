@@ -36,7 +36,7 @@ func (o *obfuscator) Obfuscate(path string) (string, error) {
 	extension := filepath.Ext(path)
 	log.Println(extension)
 
-	return "", nil
+	return "really", nil
 }
 
 func (o *obfuscator) Config() Config {
