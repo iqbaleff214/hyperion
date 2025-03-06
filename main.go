@@ -23,7 +23,7 @@ func main() {
 
 	file := fs.NewFileManager()
 	dialog := fs.NewDialog()
-	obfuscator := ob.NewObfuscator()
+	obfuscator := ob.NewObfuscator(ob.NewConfig())
 
 	// Create application with options
 	err := wails.Run(&options.App{

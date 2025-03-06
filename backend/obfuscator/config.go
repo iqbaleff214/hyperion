@@ -31,6 +31,8 @@ func NewConfig() Config {
 		log.Fatal(err)
 	}
 
+	log.Println("Hyperion config:", config.path)
+
 	return config
 }
 
