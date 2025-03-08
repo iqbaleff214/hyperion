@@ -1,7 +1,6 @@
 package js_test
 
 import (
-	"fmt"
 	"github.com/stretchr/testify/assert"
 	"hyperion/backend/obfuscator/js"
 	"os"
@@ -39,19 +38,15 @@ func TestObfuscation_RemoveComment(t *testing.T) {
 }
 
 func TestObfuscation_RenameVariable(t *testing.T) {
-	content, err := obfuscator.RenameVariable(code)
+	_, err := obfuscator.RenameVariable(code)
 	if err != nil {
 		t.Fatal(err)
 	}
-
-	fmt.Println(content)
 }
 
 func TestObfuscation_RenameConstant(t *testing.T) {
-	content, err := obfuscator.RenameConstant(code)
+	_, err := obfuscator.RenameConstant(code)
 	if err != nil {
 		t.Fatal(err)
 	}
-
-	fmt.Println(content)
 }
