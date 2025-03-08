@@ -29,12 +29,12 @@ type IObfuscation interface {
 	RemoveComment(code string) (string, error)
 }
 
-func GetObfuscation(extension string) IObfuscation {
+func GetObfuscation(extension string) (IObfuscation, error) {
 	switch extension {
 	case "js":
-		return js.Obfuscation{}
+		return js.Obfuscation{}, nil
 	default:
-		return nil
+		return nil, errors.New("unknown obfuscation extension")
 	}
 }
 
@@ -55,17 +55,13 @@ func (o *Obfuscator) Obfuscate(path string) (string, error) {
 	content := string(b)
 
 	extension := filepath.Ext(path)
-	obfuscation := GetObfuscation(extension)
-
-	if o.config.LoopStatement {
-		content, err = obfuscation.RefactorLoopStatement(content)
-		if err != nil {
-			return content, err
-		}
+	obfuscation, err := GetObfuscation(extension)
+	if err != nil {
+		return "", err
 	}
 
-	if o.config.IfStatement {
-		content, err = obfuscation.RefactorIfStatement(content)
+	if o.config.RemoveComments {
+		content, err = obfuscation.RemoveComment(content)
 		if err != nil {
 			return content, err
 		}
@@ -92,8 +88,15 @@ func (o *Obfuscator) Obfuscate(path string) (string, error) {
 		}
 	}
 
-	if o.config.RemoveComments {
-		content, err = obfuscation.RemoveComment(content)
+	if o.config.IfStatement {
+		content, err = obfuscation.RefactorIfStatement(content)
+		if err != nil {
+			return content, err
+		}
+	}
+
+	if o.config.LoopStatement {
+		content, err = obfuscation.RefactorLoopStatement(content)
 		if err != nil {
 			return content, err
 		}
