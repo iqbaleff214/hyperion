@@ -198,13 +198,15 @@
   </div>
 </div>
 <div
-  style=" padding-top: {isMac ? '32px' : '0px'}"
-  class="flex h-full transition-colors duration-300 {isFullscreen
+  class="flex flex-col h-full transition-colors duration-300 {isFullscreen
     ? 'bg-white dark:bg-neutral-900'
     : isMac
       ? 'bg-white/50 dark:bg-neutral-900/50'
       : 'border-t border-black/15 dark:border-white/15'}"
 >
+<div style="--wails-draggable:drag;" class="{isMac ? 'h-[32px]' : 'hidden'} w-full border-b border-black/15 dark:border-white/15"></div>
+<div class="flex">
+
   <div
     style="--wails-draggable:drag;"
     class="flex flex-col border-r border-black/15 dark:border-white/15 bg-black/10"
@@ -356,7 +358,7 @@
     </div>
   {/if}
   <div
-    class="flex flex overflow-hidden {selectedFiles.length == 0
+    class="flex flex overflow-hidden grow {selectedFiles.length == 0
       ? 'hidden'
       : ''}"
   >
@@ -425,7 +427,7 @@
     {/if}
 
     {#if Object.keys(filesContent).length > 0}
-      <div class="flex flex-col gap-2 overflow-x-hidden overflow-y-auto p-2">
+      <div class="flex flex-col gap-2 overflow-x-hidden overflow-y-auto p-2 grow">
         {#each Object.entries(filesContent) as [filePath, content]}
           <div
             class="bg-white dark:bg-neutral-700/50 border border-black/15 dark:border-white/15 dark:text-white rounded-lg"
@@ -506,4 +508,5 @@
       </div>
     {/if}
   </div>
+</div>
 </div>
