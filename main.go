@@ -1,14 +1,17 @@
 package main
 
 import (
+	"context"
 	"embed"
-
 	"github.com/wailsapp/wails/v2"
 	"github.com/wailsapp/wails/v2/pkg/options"
 	"github.com/wailsapp/wails/v2/pkg/options/assetserver"
 	"github.com/wailsapp/wails/v2/pkg/options/linux"
 	"github.com/wailsapp/wails/v2/pkg/options/mac"
 	"github.com/wailsapp/wails/v2/pkg/options/windows"
+	fs "hyperion/backend/filesystem"
+	ob "hyperion/backend/obfuscator"
+	"log"
 )
 
 //go:embed all:frontend/dist
@@ -17,6 +20,10 @@ var assets embed.FS
 func main() {
 	// Create an instance of the app structure
 	app := NewApp()
+
+	file := fs.NewFileManager()
+	dialog := fs.NewDialog()
+	obfuscator := ob.NewObfuscator(ob.NewConfig())
 
 	// Create application with options
 	err := wails.Run(&options.App{
@@ -29,9 +36,15 @@ func main() {
 			Assets: assets,
 		},
 		BackgroundColour: &options.RGBA{R: 0, G: 0, B: 0, A: 0},
-		OnStartup:        app.startup,
+		OnStartup: func(ctx context.Context) {
+			app.startup(ctx)
+			file.SetContext(ctx)
+			dialog.SetContext(ctx)
+			obfuscator.SetContext(ctx)
+		},
 		Bind: []interface{}{
-			app,
+			app, dialog,
+			file, obfuscator,
 		},
 		Windows: &windows.Options{
 			WebviewIsTransparent: true,
@@ -56,6 +69,6 @@ func main() {
 	})
 
 	if err != nil {
-		println("Error:", err.Error())
+		log.Fatal(err)
 	}
 }
