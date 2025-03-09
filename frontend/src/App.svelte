@@ -22,6 +22,11 @@
   let showContent = {};
   let isMac = navigator.userAgent.includes("Mac");
   let isFullscreen = false;
+  let isMenuOpen = true;
+
+  function toggleMenu() {
+    isMenuOpen = !isMenuOpen;
+  }
 
   async function checkFullscreen() {
     isFullscreen = await window.runtime.WindowIsFullscreen();
@@ -263,9 +268,9 @@
       class="flex flex-col border-r border-black/15 dark:border-white/15 bg-black/10"
     >
       <!-- svelte-ignore a11y_consider_explicit_label -->
-      <button
-        class="text-black dark:text-white disabled:opacity-50 p-2 enabled:cursor-pointer flex gap-1 items-center"
-        on:click={toggleConfig}
+      <button disabled={selectedFiles.length === 0}
+        class="text-black dark:text-white disabled:opacity-50 p-2 enabled:cursor-pointer flex gap-1 items-center {selectedFiles.length > 0 && isMenuOpen?'bg-white dark:bg-white/10':''}"
+        on:click={toggleMenu}
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -277,10 +282,14 @@
           stroke-width="1.5"
           stroke-linecap="round"
           stroke-linejoin="round"
-          class="icon icon-tabler icons-tabler-outline icon-tabler-settings"
+          class="icon icon-tabler icons-tabler-outline icon-tabler-files"
           ><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path
-            d="M10.325 4.317c.426 -1.756 2.924 -1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543 -.94 3.31 .826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756 .426 1.756 2.924 0 3.35a1.724 1.724 0 0 0 -1.066 2.573c.94 1.543 -.826 3.31 -2.37 2.37a1.724 1.724 0 0 0 -2.572 1.065c-.426 1.756 -2.924 1.756 -3.35 0a1.724 1.724 0 0 0 -2.573 -1.066c-1.543 .94 -3.31 -.826 -2.37 -2.37a1.724 1.724 0 0 0 -1.065 -2.572c-1.756 -.426 -1.756 -2.924 0 -3.35a1.724 1.724 0 0 0 1.066 -2.573c-.94 -1.543 .826 -3.31 2.37 -2.37c1 .608 2.296 .07 2.572 -1.065z"
-          /><path d="M9 12a3 3 0 1 0 6 0a3 3 0 0 0 -6 0" /></svg
+            d="M15 3v4a1 1 0 0 0 1 1h4"
+          /><path
+            d="M18 17h-7a2 2 0 0 1 -2 -2v-10a2 2 0 0 1 2 -2h4l5 5v7a2 2 0 0 1 -2 2z"
+          /><path
+            d="M16 17v2a2 2 0 0 1 -2 2h-7a2 2 0 0 1 -2 -2v-10a2 2 0 0 1 2 -2h2"
+          /></svg
         >
       </button>
       <!-- svelte-ignore a11y_consider_explicit_label -->
@@ -325,6 +334,27 @@
           ><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path
             d="M11 19h-6a2 2 0 0 1 -2 -2v-11a2 2 0 0 1 2 -2h4l3 3h7a2 2 0 0 1 2 2v4"
           /><path d="M20 21l2 -2l-2 -2" /><path d="M17 17l-2 2l2 2" /></svg
+        >
+      </button>
+      <!-- svelte-ignore a11y_consider_explicit_label -->
+      <button
+        class="text-black dark:text-white disabled:opacity-50 p-2 enabled:cursor-pointer flex gap-1 items-center mt-auto"
+        on:click={toggleConfig}
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="30"
+          height="30"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          class="icon icon-tabler icons-tabler-outline icon-tabler-settings"
+          ><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path
+            d="M10.325 4.317c.426 -1.756 2.924 -1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543 -.94 3.31 .826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756 .426 1.756 2.924 0 3.35a1.724 1.724 0 0 0 -1.066 2.573c.94 1.543 -.826 3.31 -2.37 2.37a1.724 1.724 0 0 0 -2.572 1.065c-.426 1.756 -2.924 1.756 -3.35 0a1.724 1.724 0 0 0 -2.573 -1.066c-1.543 .94 -3.31 -.826 -2.37 -2.37a1.724 1.724 0 0 0 -1.065 -2.572c-1.756 -.426 -1.756 -2.924 0 -3.35a1.724 1.724 0 0 0 1.066 -2.573c-.94 -1.543 .826 -3.31 2.37 -2.37c1 .608 2.296 .07 2.572 -1.065z"
+          /><path d="M9 12a3 3 0 1 0 6 0a3 3 0 0 0 -6 0" /></svg
         >
       </button>
     </div>
@@ -413,7 +443,7 @@
         ? 'hidden'
         : ''}"
     >
-      {#if selectedFiles.length > 0}
+      {#if selectedFiles.length > 0 && isMenuOpen}
         <div>
           <div
             class="h-[40px] flex items-center p-1 px-2 pe-0.5 text-sm dark:text-white bg-black/5 dark:bg-white/5 border-r border-black/15 dark:border-white/15"
