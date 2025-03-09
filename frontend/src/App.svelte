@@ -16,6 +16,7 @@
 
   let selectedFiles = [];
   let selectedFile = writable(null);
+  let previewOriginal = writable(true);
   let filesContent = {};
   let obfuscatedContent = {};
   let showContent = {};
@@ -32,11 +33,22 @@
     checkFullscreen();
   }, 500);
 
+  function togglePreview() {
+    previewOriginal.update((prev) => !prev);
+  }
+
   async function openFiles() {
     try {
       const newFiles = await OpenFiles();
       if (newFiles.length > 0) {
         selectedFiles = [...new Set([...selectedFiles, ...newFiles])];
+
+        const newFilesContent = await ReadFilesContent(newFiles);
+        filesContent = { ...filesContent, ...newFilesContent };
+
+        if (!$selectedFile) {
+          $selectedFile = Object.keys(filesContent)[0];
+        }
       }
     } catch (error) {
       console.error("Error opening file dialog:", error);
@@ -48,6 +60,13 @@
       const folderFiles = await OpenFolder();
       if (folderFiles && folderFiles.length > 0) {
         selectedFiles = [...new Set([...selectedFiles, ...folderFiles])];
+
+        const newFilesContent = await ReadFilesContent(folderFiles);
+        filesContent = { ...filesContent, ...newFilesContent };
+
+        if (!$selectedFile) {
+          $selectedFile = Object.keys(filesContent)[0];
+        }
       }
     } catch (error) {
       console.error("Error opening folder dialog:", error);
@@ -56,6 +75,21 @@
 
   function toggleConfig() {
     document.getElementById("config-container").classList.toggle("hidden");
+  }
+
+  async function obfuscateFile(filePath) {
+    if (!filePath || !filesContent[filePath]) {
+      console.warn("Invalid file or file not found!");
+      return;
+    }
+
+    try {
+      obfuscatedContent[filePath] = await ObfuscateJS(filesContent[filePath], {
+        ...$obfuscationConfig,
+      });
+    } catch (error) {
+      console.error("Error obfuscating file:", error);
+    }
   }
 
   async function obfuscateAll() {
@@ -430,7 +464,9 @@
                 >
                   <div class="bg-red-200/0 flex items-center px-2">
                     <div class="py-1 me-auto overflow-hidden">
-                      <span class="text-sm whitespace-nowrap pe-2">{getFileName(file)}</span>
+                      <span class="text-sm whitespace-nowrap pe-2"
+                        >{getFileName(file)}</span
+                      >
                       <div class="text-xs text-neutral-400 break-words hidden">
                         {file}
                       </div>
@@ -505,31 +541,59 @@
             style="scrollbar-width: none;"
           >
             <div class="flex flex-row h-full">
-              {#each Object.keys(filesContent) as filePath}
+              {#each selectedFiles as filePath}
                 <button
-                  class="btn-block"
+                  class="btn-block !px-3"
                   on:click={() => ($selectedFile = filePath)}
                   class:active={$selectedFile === filePath}
                 >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="16"
-                    height="16"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    class="shrink-0 icon icon-tabler icons-tabler-outline icon-tabler-lock"
-                    ><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path
-                      d="M5 13a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v6a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2v-6z"
-                    /><path d="M11 16a1 1 0 1 0 2 0a1 1 0 0 0 -2 0" /><path
-                      d="M8 11v-4a4 4 0 1 1 8 0v4"
-                    /></svg
-                  >
-                  <div class="whitespace-nowrap">
-                    {getFileName(filePath)}
+                  <div class="flex flex-row w-full overflow-hidden">
+                    {#if obfuscatedContent[filePath]}
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        class="shrink-0 icon icon-tabler icons-tabler-outline icon-tabler-lock"
+                      >
+                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                        <path
+                          d="M5 13a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v6a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2v-6z"
+                        />
+                        <path d="M11 16a1 1 0 1 0 2 0a1 1 0 0 0 -2 0" />
+                        <path d="M8 11v-4a4 4 0 1 1 8 0v4" />
+                      </svg>
+                    {:else}
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        class="shrink-0 icon icon-tabler icons-tabler-outline icon-tabler-lock-open"
+                        ><path
+                          stroke="none"
+                          d="M0 0h24v24H0z"
+                          fill="none"
+                        /><path
+                          d="M5 11m0 2a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v6a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2z"
+                        /><path
+                          d="M12 16m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"
+                        /><path d="M8 11v-5a4 4 0 0 1 8 0" /></svg
+                      >
+                    {/if}
+                    <div class="whitespace-nowrap ms-1">
+                      {getFileName(filePath)}
+                    </div>
                   </div>
                 </button>
               {/each}
@@ -628,61 +692,104 @@
                       {$selectedFile}
                     </div>
                   </div>
-                  <div class="flex ms-auto gap-1 shrink-0 items-start">
-                    <button
-                      class="btn"
-                      on:click={() => toggleShowCode($selectedFile)}
-                    >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="18"
-                        height="18"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        class="icon icon-tabler icons-tabler-outline icon-tabler-eye"
+                  {#if obfuscatedContent[$selectedFile]}
+                    <div class="flex ms-auto gap-1 shrink-0 items-start">
+                      <button
+                        class="btn"
+                        on:click={() => toggleShowCode($selectedFile)}
                       >
-                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                        <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
-                        <path
-                          d="M21 12c-2.4 4 -5.4 6 -9 6c-3.6 0 -6.6 -2 -9 -6c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6"
-                        />
-                      </svg>
-                      {showContent[$selectedFile] ? "Hide Code" : "Show Code"}
-                    </button>
-                    <button
-                      class="btn"
-                      on:click={() =>
-                        copyOutput(obfuscatedContent[$selectedFile])}
-                    >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="18"
-                        height="18"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        class="icon icon-tabler icons-tabler-outline icon-tabler-copy"
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="18"
+                          height="18"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="2"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          class="icon icon-tabler icons-tabler-outline icon-tabler-eye"
+                        >
+                          <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                          <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+                          <path
+                            d="M21 12c-2.4 4 -5.4 6 -9 6c-3.6 0 -6.6 -2 -9 -6c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6"
+                          />
+                        </svg>
+                        {showContent[$selectedFile] ? "Hide Code" : "Show Code"}
+                      </button>
+                      <button
+                        class="btn"
+                        on:click={() =>
+                          copyOutput(obfuscatedContent[$selectedFile])}
                       >
-                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                        <path
-                          d="M7 7m0 2.667a2.667 2.667 0 0 1 2.667 -2.667h8.666a2.667 2.667 0 0 1 2.667 2.667v8.666a2.667 2.667 0 0 1 -2.667 2.667h-8.666a2.667 2.667 0 0 1 -2.667 -2.667z"
-                        />
-                        <path
-                          d="M4.012 16.737a2.005 2.005 0 0 1 -1.012 -1.737v-10c0 -1.1 .9 -2 2 -2h10c.75 0 1.158 .385 1.5 1"
-                        />
-                      </svg>
-                      Copy Output
-                    </button>
-                  </div>
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="18"
+                          height="18"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="2"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          class="icon icon-tabler icons-tabler-outline icon-tabler-copy"
+                        >
+                          <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                          <path
+                            d="M7 7m0 2.667a2.667 2.667 0 0 1 2.667 -2.667h8.666a2.667 2.667 0 0 1 2.667 2.667v8.666a2.667 2.667 0 0 1 -2.667 2.667h-8.666a2.667 2.667 0 0 1 -2.667 -2.667z"
+                          />
+                          <path
+                            d="M4.012 16.737a2.005 2.005 0 0 1 -1.012 -1.737v-10c0 -1.1 .9 -2 2 -2h10c.75 0 1.158 .385 1.5 1"
+                          />
+                        </svg>
+                        Copy Output
+                      </button>
+                    </div>
+                  {:else}
+                    <div class="flex ms-auto gap-1 shrink-0 items-start">
+                      <button
+                        class="btn"
+                        on:click={() => obfuscateFile($selectedFile)}
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="18"
+                          height="18"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="2"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          class="icon icon-tabler icons-tabler-outline icon-tabler-shield-code"
+                          ><path
+                            stroke="none"
+                            d="M0 0h24v24H0z"
+                            fill="none"
+                          /><path
+                            d="M12 21a12 12 0 0 1 -8.5 -15a12 12 0 0 0 8.5 -3a12 12 0 0 0 8.5 3a12 12 0 0 1 -.078 7.024"
+                          /><path d="M20 21l2 -2l-2 -2" /><path
+                            d="M17 17l-2 2l2 2"
+                          /></svg
+                        >
+                        Obfuscate this file
+                      </button>
+                    </div>
+                  {/if}
                 </div>
                 <div class="overflow-y-auto grow">
+                  {#if !obfuscatedContent[$selectedFile]}
+                    <div
+                      class="p-4 border-b border-black/15 dark:border-white/15"
+                    >
+                      <pre
+                        class="whitespace-pre-wrap break-words">{filesContent[
+                          $selectedFile
+                        ]}
+                    </pre>
+                    </div>
+                  {/if}
                   {#if showContent[$selectedFile]}
                     <div
                       class="p-4 border-b border-black/15 dark:border-white/15"
@@ -690,7 +797,8 @@
                       <pre
                         class="whitespace-pre-wrap break-words">{filesContent[
                           $selectedFile
-                        ]}</pre>
+                        ]}
+                        </pre>
                     </div>
                   {/if}
                   {#if obfuscatedContent[$selectedFile]}
