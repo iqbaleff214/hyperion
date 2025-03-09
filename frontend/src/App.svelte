@@ -205,7 +205,7 @@
       : 'border-t border-black/15 dark:border-white/15'}"
 >
 <div style="--wails-draggable:drag;" class="{isMac ? 'h-[32px]' : 'hidden'} w-full border-b border-black/15 dark:border-white/15"></div>
-<div class="flex">
+<div class="flex h-full">
 
   <div
     style="--wails-draggable:drag;"
