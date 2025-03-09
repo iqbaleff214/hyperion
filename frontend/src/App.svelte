@@ -349,9 +349,57 @@
     </button>
   </div>
   {#if selectedFiles.length === 0}
-    <div class="flex flex-grow w-full p-20 overflow-hidden">
+    <div class="flex flex-grow w-full p-20 overflow-hidden dark:text-white items-center max-w-screen-md mx-auto">
+      <div class="flex flex-col w-full gap-2">
+        <div class="text-2xl font-medium">Hyperion</div>
+        <div class="opacity-50 font-light">Fast and Secure</div>
+        <div class="text-lg font-medium">Start</div>
+        <button class="btn me-auto w-32" on:click={openFiles}>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="icon icon-tabler icons-tabler-outline icon-tabler-file-code"
+            ><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path
+              d="M14 3v4a1 1 0 0 0 1 1h4"
+            /><path
+              d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z"
+            /><path d="M10 13l-1 2l1 2" /><path d="M14 13l1 2l-1 2" /></svg
+          >
+          Open File
+        </button>
+        <button class="btn me-auto w-32" on:click={openFolder}>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="icon icon-tabler icons-tabler-outline icon-tabler-folder-code"
+            ><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path
+              d="M11 19h-6a2 2 0 0 1 -2 -2v-11a2 2 0 0 1 2 -2h4l3 3h7a2 2 0 0 1 2 2v4"
+            /><path d="M20 21l2 -2l-2 -2" /><path d="M17 17l-2 2l2 2" /></svg
+          >
+          Open Folder
+        </button>
+        <div class="text-lg font-medium">Contribute</div>
+        <button class="btn me-auto" on:click={()=>{window.runtime.BrowserOpenURL('https://github.com/404NotFoundIndonesia/hyperion')}}>
+          <svg  xmlns="http://www.w3.org/2000/svg"  width="18"  height="18"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="1.5"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-brand-github"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" /></svg>
+          Open Repository
+        </button>
+      </div>
       <img
-        class="mx-auto my-auto object-scale-down max-h-full max-h-full grayscale opacity-25 pointer-events-none"
+        class="min-w-1 mx-auto my-auto object-scale-down max-h-full max-h-full grayscale opacity-25 pointer-events-none"
         src={logo}
         alt="app logo"
       />

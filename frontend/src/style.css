@@ -30,5 +30,5 @@ pre {
 }
 
 .btn{
-    @apply bg-white dark:bg-neutral-700 text-sm border border-black/15 dark:border-white/15 px-3 py-1 rounded cursor-pointer flex gap-1 items-center;
+    @apply bg-white dark:bg-neutral-700 text-black dark:text-white text-sm border border-black/15 dark:border-white/15 px-3 py-1 rounded cursor-pointer flex gap-1 items-center;
 }
