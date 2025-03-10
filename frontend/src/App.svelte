@@ -326,7 +326,7 @@
   </div>
 </div>
 <div
-  class="flex flex-col h-full transition-colors duration-300 {isFullscreen
+  class="flex flex-col h-full transition-colors duration-300 overflow-hidden {isFullscreen
     ? 'bg-white dark:bg-neutral-900'
     : isMac
       ? 'bg-white/50 dark:bg-neutral-900/50'
