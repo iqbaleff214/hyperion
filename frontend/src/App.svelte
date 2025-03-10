@@ -329,12 +329,87 @@
       ? 'bg-white/50 dark:bg-neutral-900/50'
       : 'border-t border-black/15 dark:border-white/15'}"
 >
-  <div
+  <div id="mac_topbar"
     style="--wails-draggable:drag;"
     class="{isMac
       ? 'h-[32px]'
       : 'hidden'} w-full border-b border-black/15 dark:border-white/15 shrink-0"
-  ></div>
+  >
+  <div class="flex gap-1 p-1 px-2 shrink-0 items-center">
+    <button
+      class="btn-sm ms-auto"
+      on:click={obfuscateAll}
+      disabled={selectedFiles.length === 0}
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="14"
+        height="14"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        class="icon icon-tabler icons-tabler-outline icon-tabler-shield-code"
+        ><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path
+          d="M12 21a12 12 0 0 1 -8.5 -15a12 12 0 0 0 8.5 -3a12 12 0 0 0 8.5 3a12 12 0 0 1 -.078 7.024"
+        /><path d="M20 21l2 -2l-2 -2" /><path
+          d="M17 17l-2 2l2 2"
+        /></svg
+      >
+      Obfuscate
+    </button>
+    <button
+      class="btn-sm"
+      on:click={exportFiles}
+      disabled={Object.keys(obfuscatedContent).length === 0}
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="14"
+        height="14"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        class="icon icon-tabler icons-tabler-outline icon-tabler-device-floppy"
+        ><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path
+          d="M6 4h10l4 4v10a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2"
+        /><path d="M12 14m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" /><path
+          d="M14 4l0 4l-6 0l0 -4"
+        /></svg
+      >
+      Save
+    </button>
+    <button
+      class="btn-sm"
+      on:click={exportFiles}
+      disabled={Object.keys(obfuscatedContent).length === 0}
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="14"
+        height="14"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        class="icon icon-tabler icons-tabler-outline icon-tabler-device-floppy"
+        ><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path
+          d="M6 4h10l4 4v10a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2"
+        /><path d="M12 14m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" /><path
+          d="M14 4l0 4l-6 0l0 -4"
+        /></svg
+      >
+      Save As
+    </button>
+  </div>
+</div>
   <div style="height: {isMac ? 'calc(100% - 32px);' : ''}" class="flex h-full">
     <div
       style="--wails-draggable:drag;"
@@ -707,7 +782,7 @@
             </div>
           </div>
 
-          <div class="flex gap-1 p-1 px-2 shrink-0 items-center">
+          <div class="flex gap-1 p-1 px-2 shrink-0 items-center {isMac?'hidden':''}">
             <button
               class="btn-sm"
               on:click={obfuscateAll}
