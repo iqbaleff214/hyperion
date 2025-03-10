@@ -13,16 +13,50 @@
   import logo from "/src/assets/images/hyperion-blue.png";
   import { writable } from "svelte/store";
   import { obfuscationConfig } from "./configStore";
+  import { onMount } from "svelte";
 
-  let selectedFiles = [];
+  export let selectedFiles = [];
   let selectedFile = writable(null);
   let previewOriginal = writable(true);
   let filesContent = {};
-  let obfuscatedContent = {};
+  export let obfuscatedContent = {};
   let showContent = {};
   let isMac = navigator.userAgent.includes("Mac");
   let isFullscreen = false;
   let isMenuOpen = true;
+  let buttons = [];
+  let menuContainer;
+
+  function scrollToSelected(index) {
+    if (buttons[index] && menuContainer) {
+      menuContainer.scrollTo({
+        left:
+          buttons[index].offsetLeft -
+          menuContainer.offsetWidth / 2 +
+          buttons[index].offsetWidth / 2,
+        behavior: "smooth",
+      });
+    }
+  }
+
+  function selectFile(filePath, i) {
+    $selectedFile = filePath;
+    if (buttons[i]) {
+      buttons[i].scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+  }
+
+  onMount(() => {
+    const selectedIndex = selectedFiles.findIndex(
+      (file) => file === selectedFile,
+    );
+    if (selectedIndex !== -1) {
+      buttons[selectedIndex]?.scrollIntoView({
+        behavior: "smooth",
+        block: "nearest",
+      });
+    }
+  });
 
   function toggleMenu() {
     isMenuOpen = !isMenuOpen;
@@ -114,9 +148,9 @@
         );
       }
 
-      // Select the first file automatically
+      // Select the first file automatically if no file is selected
       const filePaths = Object.keys(filesContent);
-      if (filePaths.length > 0) {
+      if (filePaths.length > 0 && !$selectedFile) {
         $selectedFile = filePaths[0];
       }
     } catch (error) {
@@ -268,8 +302,12 @@
       class="flex flex-col border-r border-black/15 dark:border-white/15 bg-black/10"
     >
       <!-- svelte-ignore a11y_consider_explicit_label -->
-      <button disabled={selectedFiles.length === 0}
-        class="text-black dark:text-white disabled:opacity-50 p-2 enabled:cursor-pointer flex gap-1 items-center {selectedFiles.length > 0 && isMenuOpen?'bg-white dark:bg-white/10':''}"
+      <button
+        disabled={selectedFiles.length === 0}
+        class="text-black dark:text-white disabled:opacity-50 p-2 enabled:cursor-pointer flex gap-1 items-center {selectedFiles.length >
+          0 && isMenuOpen
+          ? 'bg-white dark:bg-white/10'
+          : ''}"
         on:click={toggleMenu}
       >
         <svg
@@ -489,7 +527,7 @@
                 <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
                 <li
                   class="dark:text-white cursor-pointer hover:bg-white/50 dark:hover:bg-white/10"
-                  on:click={() => ($selectedFile = file)}
+                  on:click={() => (selectFile(file, index))}
                   class:active={$selectedFile === file}
                 >
                   <div class="bg-red-200/0 flex items-center px-2">
@@ -569,13 +607,15 @@
           <div
             class="grow text-sm overflow-x-auto"
             style="scrollbar-width: none;"
+            bind:this={menuContainer}
           >
             <div class="flex flex-row h-full">
-              {#each selectedFiles as filePath}
+              {#each selectedFiles as filePath, i}
                 <button
                   class="btn-block !px-3"
-                  on:click={() => ($selectedFile = filePath)}
+                  on:click={() => selectFile(filePath, i)}
                   class:active={$selectedFile === filePath}
+                  bind:this={buttons[i]}
                 >
                   <div class="flex flex-row w-full overflow-hidden">
                     {#if obfuscatedContent[filePath]}
@@ -610,16 +650,14 @@
                         stroke-linecap="round"
                         stroke-linejoin="round"
                         class="shrink-0 icon icon-tabler icons-tabler-outline icon-tabler-lock-open"
-                        ><path
-                          stroke="none"
-                          d="M0 0h24v24H0z"
-                          fill="none"
-                        /><path
-                          d="M5 11m0 2a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v6a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2z"
-                        /><path
-                          d="M12 16m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"
-                        /><path d="M8 11v-5a4 4 0 0 1 8 0" /></svg
                       >
+                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                        <path
+                          d="M5 11m0 2a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v6a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2z"
+                        />
+                        <path d="M12 16m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" />
+                        <path d="M8 11v-5a4 4 0 0 1 8 0" />
+                      </svg>
                     {/if}
                     <div class="whitespace-nowrap ms-1">
                       {getFileName(filePath)}
