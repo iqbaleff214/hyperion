@@ -25,6 +25,12 @@ label{
     @apply select-none;
 }
 
+.sidebar-scroll {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(95, 95, 95, 0.5) #8181811a;
+    @apply select-none;
+}
+
 pre {
     @apply select-text;
 }

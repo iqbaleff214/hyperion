@@ -186,6 +186,7 @@
     filesContent = {};
     obfuscatedContent = {};
     showContent = {};
+    $selectedFile = null;
   }
 
   function getFileName(path) {
@@ -633,9 +634,9 @@
               </button>
             </div>
           </div>
-          <div class="overflow-auto h-full" style="scrollbar-width: none;">
+          <div class="sidebar-scroll overflow-auto h-[calc(100%-40px)] border-r border-black/15 dark:border-white/15" style="">
             <ul
-              class="flex flex-col min-w-52 max-w-72 min-h-full shrink-0 bg-black/5 dark:bg-white/5 border-r border-black/15 dark:border-white/15"
+              class="flex flex-col min-w-52 max-w-72 min-h-full shrink-0 bg-black/5 dark:bg-white/5"
             >
               {#each selectedFiles as file, index}
                 <!-- svelte-ignore a11y_click_events_have_key_events -->
