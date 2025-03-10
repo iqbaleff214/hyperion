@@ -38,7 +38,7 @@ pre {
 }
 
 .btn-block{
-    @apply flex gap-1 items-center whitespace-nowrap min-w-32 overflow-hidden outline-none cursor-pointer dark:text-white p-1 px-2 hover:bg-white/50 dark:hover:bg-white/10 text-left;
+    @apply flex whitespace-nowrap min-w-32 overflow-hidden outline-none cursor-pointer dark:text-white hover:bg-white/50 dark:hover:bg-white/10 text-left;
 }
 
 .active{
