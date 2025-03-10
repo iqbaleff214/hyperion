@@ -22,6 +22,7 @@
   export let obfuscatedContent = {};
   let showContent = {};
   let isMac = navigator.userAgent.includes("Mac");
+  // isMac = true;
   let isFullscreen = false;
   let isMenuOpen = true;
   let buttons = [];
@@ -216,23 +217,65 @@
   }
 </script>
 
-<div id="config-container" class="fixed p-2 h-full w-full z-1 flex hidden">
+<div id="config-container" class="fixed p-10 h-full w-full z-1 flex hidden">
   <!-- svelte-ignore a11y_no_static_element_interactions -->
   <!-- svelte-ignore a11y_click_events_have_key_events -->
   <div on:click={toggleConfig} class="fixed h-full w-full top-0 left-0"></div>
   <div
-    class="relative bg-neutral-100 dark:bg-neutral-800 max-w-full h-full border border-black/15 dark:border-white/15 rounded-lg shadow-xl"
+    class="relative bg-neutral-100 dark:bg-neutral-800 w-full max-w-screen-lg mx-auto h-full border border-black/15 dark:border-white/15 rounded-lg shadow-xl"
   >
     <div
       class="flex flex-col gap-1 p-2 overflow-auto mt-[40px] h-[calc(100%-40px)]"
     >
-      <div class="absolute top-0 left-0 w-full flex items-center">
-        <div class="ms-4 text-sm dark:text-white">Obfuscator Config</div>
+      <div
+        style="--wails-draggable:drag;"
+        class="absolute top-0 left-0 w-full flex gap-1 items-center dark:text-white border-b border-black/15 dark:border-white/15"
+      >
         <!-- svelte-ignore a11y_no_static_element_interactions -->
         <!-- svelte-ignore a11y_click_events_have_key_events -->
         <div
           on:click={toggleConfig}
-          class="ms-auto dark:text-white p-3 cursor-pointer"
+          class="dark:text-white p-2 ms-1 cursor-pointer {isMac
+            ? ''
+            : 'hidden'}"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="12"
+            height="12"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="icon icon-tabler icons-tabler-outline icon-tabler-x text-red-600 hover:text-red-900 bg-red-600 rounded-full"
+            ><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path
+              d="M18 6l-12 12"
+            /><path d="M6 6l12 12" /></svg
+          >
+        </div>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="currentColor"
+          class="icon icon-tabler icons-tabler-filled icon-tabler-settings text-blue-400 {isMac
+            ? 'ms-auto hidden'
+            : 'ms-2'}"
+          ><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path
+            d="M14.647 4.081a.724 .724 0 0 0 1.08 .448c2.439 -1.485 5.23 1.305 3.745 3.744a.724 .724 0 0 0 .447 1.08c2.775 .673 2.775 4.62 0 5.294a.724 .724 0 0 0 -.448 1.08c1.485 2.439 -1.305 5.23 -3.744 3.745a.724 .724 0 0 0 -1.08 .447c-.673 2.775 -4.62 2.775 -5.294 0a.724 .724 0 0 0 -1.08 -.448c-2.439 1.485 -5.23 -1.305 -3.745 -3.744a.724 .724 0 0 0 -.447 -1.08c-2.775 -.673 -2.775 -4.62 0 -5.294a.724 .724 0 0 0 .448 -1.08c-1.485 -2.439 1.305 -5.23 3.744 -3.745a.722 .722 0 0 0 1.08 -.447c.673 -2.775 4.62 -2.775 5.294 0zm-2.647 4.919a3 3 0 1 0 0 6a3 3 0 0 0 0 -6z"
+          /></svg
+        >
+        <div class="text-xs {isMac ? 'ms-auto me-8' : ''}">
+          Obfuscator Config
+        </div>
+        <!-- svelte-ignore a11y_no_static_element_interactions -->
+        <!-- svelte-ignore a11y_click_events_have_key_events -->
+        <div
+          on:click={toggleConfig}
+          class="ms-auto dark:text-white p-2 cursor-pointer hover:bg-red-700 hover:text-white hover:text-white rounded-tr-lg"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -241,19 +284,19 @@
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
-            stroke-width="2"
+            stroke-width="1"
             stroke-linecap="round"
             stroke-linejoin="round"
-            class="icon icon-tabler icons-tabler-outline icon-tabler-x"
+            class="icon icon-tabler icons-tabler-outline icon-tabler-x {isMac
+              ? 'hidden'
+              : ''}"
             ><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path
               d="M18 6l-12 12"
             /><path d="M6 6l12 12" /></svg
           >
         </div>
       </div>
-      <label
-        class="bg-white dark:bg-neutral-900 text-sm border border-black/15 dark:border-white/15 text-black dark:text-white disabled:text-black/50 dark:disabled:text-white/50 px-3 py-2 rounded-lg cursor-pointer flex gap-1.5 items-center"
-      >
+      <label class="input-setting">
         <input
           type="checkbox"
           bind:checked={$obfuscationConfig.removeWhiteSpace}
@@ -261,9 +304,7 @@
         Remove Whitespace
       </label>
 
-      <label
-        class="bg-white dark:bg-neutral-900 text-sm border border-black/15 dark:border-white/15 text-black dark:text-white disabled:text-black/50 dark:disabled:text-white/50 px-3 py-2 rounded-lg cursor-pointer flex gap-1.5 items-center"
-      >
+      <label class="input-setting">
         <input
           type="checkbox"
           bind:checked={$obfuscationConfig.removeComments}
@@ -271,9 +312,7 @@
         Remove Comments
       </label>
 
-      <label
-        class="bg-white dark:bg-neutral-900 text-sm border border-black/15 dark:border-white/15 text-black dark:text-white disabled:text-black/50 dark:disabled:text-white/50 px-3 py-2 rounded-lg cursor-pointer flex gap-1.5 items-center"
-      >
+      <label class="input-setting">
         <input
           type="checkbox"
           bind:checked={$obfuscationConfig.changeVariable}
@@ -294,9 +333,9 @@
     style="--wails-draggable:drag;"
     class="{isMac
       ? 'h-[32px]'
-      : 'hidden'} w-full border-b border-black/15 dark:border-white/15"
+      : 'hidden'} w-full border-b border-black/15 dark:border-white/15 shrink-0"
   ></div>
-  <div class="flex h-full">
+  <div style="height: {isMac ? 'calc(100% - 32px);' : ''}" class="flex h-full">
     <div
       style="--wails-draggable:drag;"
       class="flex flex-col border-r border-black/15 dark:border-white/15 bg-black/10"
@@ -527,7 +566,7 @@
                 <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
                 <li
                   class="dark:text-white cursor-pointer hover:bg-white/50 dark:hover:bg-white/10"
-                  on:click={() => (selectFile(file, index))}
+                  on:click={() => selectFile(file, index)}
                   class:active={$selectedFile === file}
                 >
                   <div class="bg-red-200/0 flex items-center px-2">
@@ -848,9 +887,7 @@
                 </div>
                 <div class="overflow-y-auto grow">
                   {#if !obfuscatedContent[$selectedFile]}
-                    <div
-                      class="p-4 border-b border-black/15 dark:border-white/15"
-                    >
+                    <div class="p-4">
                       <pre
                         class="whitespace-pre-wrap break-words">{filesContent[
                           $selectedFile
