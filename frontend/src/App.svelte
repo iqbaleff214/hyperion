@@ -76,6 +76,66 @@
     }
   });
 
+  function buildFileTree(files) {
+    const tree = {};
+
+    files.forEach((file) => {
+      const normalizedFile = file.replace(/\\/g, "/");
+      const parts = normalizedFile.split("/");
+
+      let current = tree;
+      parts.forEach((part, index) => {
+        if (!current[part]) {
+          current[part] =
+            index === parts.length - 1 ? { path: normalizedFile } : {};
+        }
+        current = current[part];
+      });
+    });
+
+    let keys = Object.keys(tree);
+    let trimmedTree = tree;
+
+    while (keys.length === 1) {
+      trimmedTree = trimmedTree[keys[0]];
+      keys = Object.keys(trimmedTree);
+    }
+
+    return trimmedTree;
+  }
+  $: fileTree = buildFileTree(selectedFiles);
+
+  function handleClick(event) {
+    const target = event.target.closest("[data-value]");
+    if (target) {
+      const value = target.getAttribute("data-value");
+      selectFile(value);
+    }
+  }
+
+  function renderTree(tree) {
+    return Object.entries(tree)
+      .map(([name, content]) => {
+        const isLeaf = !(content && typeof content === "object");
+        if (!isLeaf) {
+          const firstChild = Object.entries(content)[0];
+          const isChildLeaf =
+            firstChild && !(firstChild[1] && typeof firstChild[1] === "object");
+
+          return isChildLeaf
+            ? `<div data-value="${firstChild[1]}" class="cursor-pointer">${name}</div>`
+            : `<ul class="list-none pl-4">
+                <li class="pl-2 dark:text-white">${name}
+                  ${renderTree(content)}
+                </li>
+              </ul>`;
+        } else {
+          return `<li class="pl-2 dark:text-white text-xs opacity-50">${content}</li>`;
+        }
+      })
+      .join("");
+  }
+
   function toggleMenu() {
     isMenuOpen = !isMenuOpen;
   }
@@ -110,6 +170,7 @@
       const folderFiles = await OpenFolder();
       if (folderFiles && folderFiles.length > 0) {
         selectedFiles = [...new Set([...selectedFiles, ...folderFiles])];
+        const fileTree = buildFileTree(selectedFiles);
       }
     } catch (error) {
       console.error("Error opening folder dialog:", error);
@@ -634,85 +695,19 @@
               </button>
             </div>
           </div>
-          <div class="sidebar-scroll overflow-auto h-[calc(100%-40px)] border-r border-black/15 dark:border-white/15" style="">
+          <div
+            class="sidebar-scroll overflow-auto h-[calc(100%-40px)] border-r border-black/15 dark:border-white/15"
+            style=""
+          >
             <ul
-              class="flex flex-col min-w-52 max-w-72 min-h-full shrink-0 bg-black/5 dark:bg-white/5"
+              class="flex flex-col min-w-52 max-w-72 min-h-full shrink-0 bg-black/5 dark:bg-white/5 dark:text-white"
             >
-              {#each selectedFiles as file, index}
-                <!-- svelte-ignore a11y_click_events_have_key_events -->
-                <!-- svelte-ignore a11y_no_static_element_interactions -->
-                <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
-                <li
-                  class="dark:text-white cursor-pointer hover:bg-white/50 dark:hover:bg-white/10"
-                  on:click={() => selectFile(file, index)}
-                  class:active={$selectedFile === file}
-                >
-                  <div class="bg-red-200/0 flex items-center px-2">
-                    <div class="py-1 me-auto overflow-hidden">
-                      <span class="text-sm whitespace-nowrap pe-2"
-                        >{getFileName(file)}</span
-                      >
-                      <div class="text-xs text-neutral-400 break-words hidden">
-                        {file}
-                      </div>
-                    </div>
-                    <!-- svelte-ignore a11y_consider_explicit_label -->
-                    <button
-                      class="dark:text-white p-1 cursor-pointer flex gap-1 items-center opacity-50 hover:opacity-100"
-                      on:click={() => openImportedFolder(file)}
-                    >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="16"
-                        height="16"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        class="icon icon-tabler icons-tabler-outline icon-tabler-folder"
-                        ><path
-                          stroke="none"
-                          d="M0 0h24v24H0z"
-                          fill="none"
-                        /><path
-                          d="M5 4h4l3 3h7a2 2 0 0 1 2 2v8a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-11a2 2 0 0 1 2 -2"
-                        /></svg
-                      >
-                    </button>
-                    <!-- svelte-ignore a11y_consider_explicit_label -->
-                    <button
-                      class="dark:text-white p-1 cursor-pointer flex gap-1 items-center opacity-50 hover:opacity-100"
-                      on:click={() => removeFile(index)}
-                    >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="16"
-                        height="16"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        class="icon icon-tabler icons-tabler-outline icon-tabler-trash"
-                        ><path
-                          stroke="none"
-                          d="M0 0h24v24H0z"
-                          fill="none"
-                        /><path d="M4 7l16 0" /><path d="M10 11l0 6" /><path
-                          d="M14 11l0 6"
-                        /><path
-                          d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12"
-                        /><path
-                          d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3"
-                        /></svg
-                      >
-                    </button>
-                  </div>
-                </li>
-              {/each}
+              <!-- {@html renderTree(fileTree)} -->
+              <!-- svelte-ignore a11y_click_events_have_key_events -->
+              <!-- svelte-ignore a11y_no_static_element_interactions -->
+              <div on:click={handleClick}>
+                {@html renderTree(fileTree)}
+              </div>
             </ul>
           </div>
         </div>
@@ -738,7 +733,7 @@
                     <!-- svelte-ignore a11y_no_static_element_interactions -->
                     <div
                       class="flex flex-row w-full items-center grow ps-3 overflow-hidden"
-                      on:click={() => selectFile(filePath, i)}
+                      on:click={() => selectFile(filePath)}
                     >
                       {#if obfuscatedContent[filePath]}
                         <svg
