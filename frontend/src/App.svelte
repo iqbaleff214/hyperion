@@ -11,12 +11,12 @@
   } from "../wailsjs/go/main/App";
 
   import logo from "/src/assets/images/hyperion-blue.png";
-  import { writable } from "svelte/store";
+  import { writable, get } from "svelte/store";
   import { obfuscationConfig } from "./stores/configStore";
   import { onMount } from "svelte";
-  import { selectedFile } from "./stores/selectedFileStore.js";
+  import { selectedFile, selectedFiles } from "./stores/selectedFileStore.js";
 
-  let selectedFiles = [];
+  // let selectedFiles = [];
   // let selectedFile = writable(null);
   let previewOriginal = writable(true);
   let filesContent = {};
@@ -41,7 +41,7 @@
 
     // Find the index in the filtered list
     setTimeout(() => {
-      const filteredIndex = selectedFiles
+      const filteredIndex = $selectedFiles
         .filter((file) => filesContent[file])
         .indexOf(filePath);
 
@@ -65,17 +65,17 @@
     }
   }
 
-  onMount(() => {
-    const selectedIndex = selectedFiles.findIndex(
-      (file) => file === selectedFile,
-    );
-    if (selectedIndex !== -1) {
-      buttons[selectedIndex]?.scrollIntoView({
-        behavior: "smooth",
-        block: "nearest",
-      });
-    }
-  });
+  // onMount(() => {
+  //   const selectedIndex = selectedFiles.findIndex(
+  //     (file) => file === selectedFile,
+  //   );
+  //   if (selectedIndex !== -1) {
+  //     buttons[selectedIndex]?.scrollIntoView({
+  //       behavior: "smooth",
+  //       block: "nearest",
+  //     });
+  //   }
+  // });
 
   function buildFileTree(files) {
     const tree = {};
@@ -104,7 +104,7 @@
 
     return trimmedTree;
   }
-  $: fileTree = buildFileTree(selectedFiles);
+  $: fileTree = buildFileTree(get(selectedFiles));
 
   function handleClick(event) {
     const target = event.target.closest("[data-value]");
@@ -159,7 +159,9 @@
     try {
       const newFiles = await OpenFiles();
       if (newFiles.length > 0) {
-        selectedFiles = [...new Set([...selectedFiles, ...newFiles])];
+        selectedFiles.update((files) => [
+          ...new Set([...(files || []), ...newFiles]),
+        ]);
       }
     } catch (error) {
       console.error("Error opening file dialog:", error);
@@ -170,8 +172,11 @@
     try {
       const folderFiles = await OpenFolder();
       if (folderFiles && folderFiles.length > 0) {
-        selectedFiles = [...new Set([...selectedFiles, ...folderFiles])];
-        const fileTree = buildFileTree(selectedFiles);
+        selectedFiles.update((files) => {
+          const updatedFiles = [...new Set([...(files || []), ...folderFiles])];
+          fileTree = buildFileTree(updatedFiles);
+          return updatedFiles;
+        });
       }
     } catch (error) {
       console.error("Error opening folder dialog:", error);
@@ -198,13 +203,13 @@
   }
 
   async function obfuscateAll() {
-    if (selectedFiles.length === 0) {
+    if ($selectedFiles.length === 0) {
       console.warn("No files selected!");
       return;
     }
 
     try {
-      const newFilesContent = await ReadFilesContent(selectedFiles);
+      const newFilesContent = await ReadFilesContent(get(selectedFiles));
       filesContent = { ...filesContent, ...newFilesContent };
 
       for (let filePath of Object.keys(filesContent)) {
@@ -225,30 +230,28 @@
   }
 
   function removeFile(index) {
-    const removedFile = selectedFiles[index];
-    selectedFiles = selectedFiles.filter((_, i) => i !== index);
+    const files = $selectedFiles;
+    if (!Array.isArray(files) || index < 0 || index >= files.length) return;
 
-    filesContent = { ...filesContent };
-    obfuscatedContent = { ...obfuscatedContent };
-    showContent = { ...showContent };
+    const removedFile = files[index];
+    $selectedFiles = files.filter((_, i) => i !== index);
 
     delete filesContent[removedFile];
     delete obfuscatedContent[removedFile];
     delete showContent[removedFile];
 
-    // If the removed file was the selected one, select another
+    const filePaths = Object.keys(filesContent);
     if ($selectedFile === removedFile) {
-      const filePaths = Object.keys(filesContent);
       $selectedFile = filePaths.length > 0 ? filePaths[0] : null;
     }
   }
 
   function removeAllFiles() {
-    selectedFiles = [];
+    selectedFiles.set([]);
     filesContent = {};
     obfuscatedContent = {};
     showContent = {};
-    $selectedFile = null;
+    selectedFile.set(null);
   }
 
   function getFileName(path) {
@@ -406,7 +409,7 @@
       <button
         class="btn-sm ms-auto"
         on:click={obfuscateAll}
-        disabled={selectedFiles.length === 0}
+        disabled={$selectedFiles.length === 0}
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -575,7 +578,7 @@
         >
       </button>
     </div>
-    {#if selectedFiles.length === 0}
+    {#if $selectedFiles.length === 0}
       <div
         class="flex flex-grow w-full p-20 overflow-hidden dark:text-white items-center max-w-screen-md mx-auto"
       >
@@ -656,11 +659,11 @@
       </div>
     {/if}
     <div
-      class="flex flex overflow-hidden grow {selectedFiles.length == 0
+      class="flex flex overflow-hidden grow {$selectedFiles.length == 0
         ? 'hidden'
         : ''}"
     >
-      {#if selectedFiles.length > 0 && isMenuOpen}
+      {#if $selectedFiles.length > 0 && isMenuOpen}
         <div>
           <div
             class="h-[40px] flex items-center p-1 px-2 pe-0.5 text-sm dark:text-white bg-black/5 dark:bg-white/5 border-r border-black/15 dark:border-white/15"
@@ -671,7 +674,7 @@
               <button
                 class="text-black dark:text-white disabled:opacity-50 p-2 enabled:cursor-pointer flex gap-1 items-center"
                 on:click={removeAllFiles}
-                disabled={selectedFiles.length === 0}
+                disabled={$selectedFiles.length === 0}
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -723,7 +726,7 @@
             bind:this={menuContainer}
           >
             <div class="flex flex-row h-full">
-              {#each selectedFiles.filter((file) => filesContent[file]) as filePath, i}
+              {#each $selectedFiles.filter((file) => filesContent[file]) as filePath, i}
                 <button
                   class="btn-block"
                   class:active={$selectedFile === filePath}
@@ -821,7 +824,7 @@
             <button
               class="btn-sm"
               on:click={obfuscateAll}
-              disabled={selectedFiles.length === 0}
+              disabled={$selectedFiles.length === 0}
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
