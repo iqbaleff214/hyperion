@@ -69,6 +69,8 @@
     if ($selectedFile === filePath) {
       selectedFile.set(null);
     }
+    fileTree.set(buildFileTree($selectedFiles));
+    renderTree(get(fileTree));
   }
 
   function buildFileTree(files) {
