@@ -12,14 +12,15 @@
 
   import logo from "/src/assets/images/hyperion-blue.png";
   import { writable } from "svelte/store";
-  import { obfuscationConfig } from "./configStore";
+  import { obfuscationConfig } from "./stores/configStore";
   import { onMount } from "svelte";
+  import { selectedFile } from "./stores/selectedFileStore.js";
 
-  export let selectedFiles = [];
-  let selectedFile = writable(null);
+  let selectedFiles = [];
+  // let selectedFile = writable(null);
   let previewOriginal = writable(true);
   let filesContent = {};
-  export let obfuscatedContent = {};
+  let obfuscatedContent = {};
   let showContent = {};
   let isMac = navigator.userAgent.includes("Mac");
   // isMac = true;
@@ -123,8 +124,8 @@
             firstChild && !(firstChild[1] && typeof firstChild[1] === "object");
 
           return isChildLeaf
-            ? `<div data-value="${firstChild[1]}" class="cursor-pointer">${name}</div>`
-            : `<ul class="list-none pl-4">
+            ? `<div data-value="${firstChild[1]}" class="cursor-pointer pl-2">${name}</div>`
+            : `<ul class="list-none pl-2">
                 <li class="pl-2 dark:text-white">${name}
                   ${renderTree(content)}
                 </li>
