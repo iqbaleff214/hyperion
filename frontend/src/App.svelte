@@ -305,7 +305,7 @@
         <!-- svelte-ignore a11y_no_static_element_interactions -->
         <!-- svelte-ignore a11y_click_events_have_key_events -->
         <div
-          on:click={toggleConfig}
+          on:click={toggleConfig} style="--wails-draggable: false"
           class="dark:text-white p-2 ms-1 cursor-pointer {isMac
             ? ''
             : 'hidden'}"
@@ -345,7 +345,7 @@
         <!-- svelte-ignore a11y_no_static_element_interactions -->
         <!-- svelte-ignore a11y_click_events_have_key_events -->
         <div
-          on:click={toggleConfig}
+          on:click={toggleConfig} style="--wails-draggable: false"
           class="ms-auto dark:text-white p-2 cursor-pointer hover:bg-red-700 hover:text-white hover:text-white rounded-tr-lg"
         >
           <svg
