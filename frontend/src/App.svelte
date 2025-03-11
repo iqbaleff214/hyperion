@@ -25,6 +25,7 @@
   let obfuscatedContent = {};
   let showContent = {};
   let isMac = navigator.userAgent.includes("Mac");
+  let isFrameless = false;
   // isMac = true;
   let isFullscreen = false;
   let isMenuOpen = true;
@@ -405,7 +406,11 @@
     class="w-full border-b border-black/15 dark:border-white/15 shrink-0"
   >
     <div class="h-[32px] flex gap-1 shrink-0 items-center">
-      <img class="ms-2 h-[16px] {isMac ? 'hidden' : ''}" src={logo} alt="app logo" />
+      <img class="ms-2 h-[16px] {isMac || !isFrameless ? 'hidden' : ''}" src={logo} alt="app logo" />
+      <div id="windowsMenu" class="flex h-full {isMac ? 'hidden' : ''}">
+        <div class="menuButton">File</div>
+        <div class="menuButton">Edit</div>
+      </div>
       <div class="flex gap-1 p-1 ms-auto">
         <button
           class="btn-sm "
@@ -427,12 +432,12 @@
               d="M12 21a12 12 0 0 1 -8.5 -15a12 12 0 0 0 8.5 -3a12 12 0 0 0 8.5 3a12 12 0 0 1 -.078 7.024"
             /><path d="M20 21l2 -2l-2 -2" /><path d="M17 17l-2 2l2 2" /></svg
           >
-          Obfuscate
+          Obfuscate All
         </button>
         <button
           class="btn-sm"
           on:click={exportFiles}
-          disabled={Object.keys(obfuscatedContent).length === 0}
+          disabled=true
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -478,7 +483,7 @@
           Save As
         </button>
       </div>
-      <div id="windowsControl" class="flex h-full {isMac ? 'hidden' : ''}">
+      <div id="windowsControl" class="flex h-full {(isMac || !isFrameless) ? 'hidden' : ''}">
         <!-- svelte-ignore a11y_click_events_have_key_events -->
         <!-- svelte-ignore a11y_no_static_element_interactions -->
         <div
@@ -553,7 +558,7 @@
       </div>
     </div>
   </div>
-  <div style="height: {isMac ? 'calc(100% - 32px);' : ''}" class="flex h-full">
+  <div style="height: {isMac || !isFrameless ? 'calc(100% - 32px);' : ''}" class="flex h-full">
     <div
       style="--wails-draggable:drag;"
       class="flex flex-col border-r border-black/15 dark:border-white/15 bg-black/10"
@@ -775,11 +780,11 @@
             </div>
           </div>
           <div
-            class="sidebar-scroll overflow-auto h-[calc(100%-40px)] border-r border-black/15 dark:border-white/15"
+            class="sidebar-scroll overflow-x-auto overflow-y-auto h-[calc(100%-40px)] bg-black/5 dark:bg-white/5 border-r border-black/15 dark:border-white/15"
             style=""
           >
             <ul
-              class="flex flex-col min-w-52 max-w-72 min-h-full shrink-0 bg-black/5 dark:bg-white/5 dark:text-white"
+              class="flex flex-col min-w-52 max-w-72 min-h-full shrink-0 dark:text-white"
             >
               <!-- svelte-ignore a11y_click_events_have_key_events -->
               <!-- svelte-ignore a11y_no_static_element_interactions -->

@@ -28,6 +28,7 @@ label{
 .sidebar-scroll {
     scrollbar-width: thin;
     scrollbar-color: rgba(95, 95, 95, 0.5) #8181811a;
+    scrollbar-color: rgba(95, 95, 95, 0.5) transparent;
     @apply select-none;
 }
 
@@ -70,4 +71,9 @@ pre {
 
 .closeButton:hover svg{
     @apply invert-0;
+}
+
+.menuButton{
+    --wails-draggable: false;
+    @apply cursor-pointer flex items-center text-sm dark:text-white px-2 dark:hover:bg-white/10 hover:bg-white/75;
 }
