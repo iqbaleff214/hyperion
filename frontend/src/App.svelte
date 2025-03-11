@@ -28,7 +28,7 @@
   let menuContainer;
 
   async function selectFile(filePath) {
-    console.log(`selectFile(${filePath})`);
+    console.log(`selectFile\`(${filePath})\``);
     if ($selectedFile === filePath) return;
 
     selectedFile.set(filePath);
@@ -95,10 +95,11 @@
   function handleClick(event) {
     const target = event.target.closest("[data-value]");
     if (target) {
-      const value = target.getAttribute("data-value");
-      selectFile(value);
+        let value = target.getAttribute("data-value");
+        value = value.replace(/\//g, "\\");
+        selectFile(value);
     }
-  }
+}
 
   function renderTree(tree) {
     return Object.entries(tree)
