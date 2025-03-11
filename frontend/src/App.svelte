@@ -16,8 +16,6 @@
   import { onMount } from "svelte";
   import { selectedFile, selectedFiles } from "./stores/selectedFileStore.js";
 
-  // let selectedFiles = [];
-  // let selectedFile = writable(null);
   let previewOriginal = writable(true);
   let filesContent = {};
   let obfuscatedContent = {};
@@ -30,16 +28,16 @@
   let menuContainer;
 
   async function selectFile(filePath) {
+    console.log(`selectFile(${filePath})`);
     if ($selectedFile === filePath) return;
 
-    $selectedFile = filePath;
+    selectedFile.set(filePath);
 
     if (!filesContent[filePath]) {
       const content = await ReadFilesContent([filePath]);
       filesContent = { ...filesContent, ...content };
     }
 
-    // Find the index in the filtered list
     setTimeout(() => {
       const filteredIndex = $selectedFiles
         .filter((file) => filesContent[file])
@@ -61,21 +59,9 @@
     }
 
     if ($selectedFile === filePath) {
-      $selectedFile = null;
+      selectedFile.set(null);
     }
   }
-
-  // onMount(() => {
-  //   const selectedIndex = selectedFiles.findIndex(
-  //     (file) => file === selectedFile,
-  //   );
-  //   if (selectedIndex !== -1) {
-  //     buttons[selectedIndex]?.scrollIntoView({
-  //       behavior: "smooth",
-  //       block: "nearest",
-  //     });
-  //   }
-  // });
 
   function buildFileTree(files) {
     const tree = {};
@@ -203,7 +189,7 @@
   }
 
   async function obfuscateAll() {
-    if ($selectedFiles.length === 0) {
+    if (get(selectedFiles).length === 0) {
       console.warn("No files selected!");
       return;
     }
@@ -219,10 +205,9 @@
         );
       }
 
-      // Select the first file automatically if no file is selected
       const filePaths = Object.keys(filesContent);
       if (filePaths.length > 0 && !$selectedFile) {
-        $selectedFile = filePaths[0];
+        selectedFile.set(filePaths[0]);
       }
     } catch (error) {
       console.error("Error processing files:", error);
@@ -230,20 +215,24 @@
   }
 
   function removeFile(index) {
-    const files = $selectedFiles;
-    if (!Array.isArray(files) || index < 0 || index >= files.length) return;
+    selectedFiles.update((files) => {
+      if (!Array.isArray(files) || index < 0 || index >= files.length)
+        return files;
 
-    const removedFile = files[index];
-    $selectedFiles = files.filter((_, i) => i !== index);
+      const removedFile = files[index];
+      const updatedFiles = files.filter((_, i) => i !== index);
 
-    delete filesContent[removedFile];
-    delete obfuscatedContent[removedFile];
-    delete showContent[removedFile];
+      delete filesContent[removedFile];
+      delete obfuscatedContent[removedFile];
+      delete showContent[removedFile];
 
-    const filePaths = Object.keys(filesContent);
-    if ($selectedFile === removedFile) {
-      $selectedFile = filePaths.length > 0 ? filePaths[0] : null;
-    }
+      if (get(selectedFile) === removedFile) {
+        const filePaths = Object.keys(filesContent);
+        selectedFile.set(filePaths.length > 0 ? filePaths[0] : null);
+      }
+
+      return updatedFiles;
+    });
   }
 
   function removeAllFiles() {
