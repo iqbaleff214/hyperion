@@ -14,7 +14,11 @@
   import { writable, get } from "svelte/store";
   import { obfuscationConfig } from "./stores/configStore";
   import { onMount } from "svelte";
-  import { selectedFile, selectedFiles, fileTree } from "./stores/selectedFileStore.js";
+  import {
+    selectedFile,
+    selectedFiles,
+    fileTree,
+  } from "./stores/selectedFileStore.js";
 
   let previewOriginal = writable(true);
   let filesContent = {};
@@ -26,6 +30,7 @@
   let isMenuOpen = true;
   let buttons = [];
   let menuContainer;
+  let isMaximize = false;
 
   fileTree.set(buildFileTree($selectedFiles));
 
@@ -111,14 +116,14 @@
           const isChildLeaf =
             firstChild && !(firstChild[1] && typeof firstChild[1] === "object");
           let isActive = false;
-            if(isChildLeaf){
-              isActive = firstChild[1].replace(/\//g, "\\") == get(selectedFile);
-              if(isActive){
-                console.log(get(selectedFile))
-              }
+          if (isChildLeaf) {
+            isActive = firstChild[1].replace(/\//g, "\\") == get(selectedFile);
+            if (isActive) {
+              console.log(get(selectedFile));
             }
+          }
           return isChildLeaf
-            ? `<div data-value="${firstChild[1]}" class="${isActive?'opacity-100':'opacity-50'} cursor-pointer pl-2 hover:opacity-100">${name}</div>`
+            ? `<div data-value="${firstChild[1]}" class="${isActive ? "opacity-100" : "opacity-50"} cursor-pointer pl-2 hover:opacity-100">${name}</div>`
             : `<ul class="list-none pl-2">
                 <li class="pl-2 dark:text-white">${name}
                   ${renderTree(content)}
@@ -135,6 +140,7 @@
 
   async function checkFullscreen() {
     isFullscreen = await window.runtime.WindowIsFullscreen();
+    isMaximize = await window.runtime.WindowIsMaximised();
   }
 
   window.addEventListener("resize", checkFullscreen);
@@ -394,83 +400,157 @@
       : 'border-t border-black/15 dark:border-white/15'}"
 >
   <div
-    id="mac_topbar"
+    id="topbar"
     style="--wails-draggable:drag;"
-    class="{isMac
-      ? 'h-[32px]'
-      : 'hidden'} w-full border-b border-black/15 dark:border-white/15 shrink-0"
+    class="w-full border-b border-black/15 dark:border-white/15 shrink-0"
   >
-    <div class="flex gap-1 p-1 px-2 shrink-0 items-center">
-      <button
-        class="btn-sm ms-auto"
-        on:click={obfuscateAll}
-        disabled={$selectedFiles.length === 0}
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="14"
-          height="14"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          class="icon icon-tabler icons-tabler-outline icon-tabler-shield-code"
-          ><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path
-            d="M12 21a12 12 0 0 1 -8.5 -15a12 12 0 0 0 8.5 -3a12 12 0 0 0 8.5 3a12 12 0 0 1 -.078 7.024"
-          /><path d="M20 21l2 -2l-2 -2" /><path d="M17 17l-2 2l2 2" /></svg
+    <div class="h-[32px] flex gap-1 shrink-0 items-center">
+      <img class="ms-2 h-[16px] {isMac ? 'hidden' : ''}" src={logo} alt="app logo" />
+      <div class="flex gap-1 p-1 ms-auto">
+        <button
+          class="btn-sm "
+          on:click={obfuscateAll}
+          disabled={$selectedFiles.length === 0}
         >
-        Obfuscate
-      </button>
-      <button
-        class="btn-sm"
-        on:click={exportFiles}
-        disabled={Object.keys(obfuscatedContent).length === 0}
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="14"
-          height="14"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          class="icon icon-tabler icons-tabler-outline icon-tabler-device-floppy"
-          ><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path
-            d="M6 4h10l4 4v10a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2"
-          /><path d="M12 14m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" /><path
-            d="M14 4l0 4l-6 0l0 -4"
-          /></svg
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="icon icon-tabler icons-tabler-outline icon-tabler-shield-code"
+            ><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path
+              d="M12 21a12 12 0 0 1 -8.5 -15a12 12 0 0 0 8.5 -3a12 12 0 0 0 8.5 3a12 12 0 0 1 -.078 7.024"
+            /><path d="M20 21l2 -2l-2 -2" /><path d="M17 17l-2 2l2 2" /></svg
+          >
+          Obfuscate
+        </button>
+        <button
+          class="btn-sm"
+          on:click={exportFiles}
+          disabled={Object.keys(obfuscatedContent).length === 0}
         >
-        Save
-      </button>
-      <button
-        class="btn-sm"
-        on:click={exportFiles}
-        disabled={Object.keys(obfuscatedContent).length === 0}
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="14"
-          height="14"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          class="icon icon-tabler icons-tabler-outline icon-tabler-device-floppy"
-          ><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path
-            d="M6 4h10l4 4v10a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2"
-          /><path d="M12 14m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" /><path
-            d="M14 4l0 4l-6 0l0 -4"
-          /></svg
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="icon icon-tabler icons-tabler-outline icon-tabler-device-floppy"
+            ><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path
+              d="M6 4h10l4 4v10a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2"
+            /><path d="M12 14m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" /><path
+              d="M14 4l0 4l-6 0l0 -4"
+            /></svg
+          >
+          Save
+        </button>
+        <button
+          class="btn-sm"
+          on:click={exportFiles}
+          disabled={Object.keys(obfuscatedContent).length === 0}
         >
-        Save As
-      </button>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="icon icon-tabler icons-tabler-outline icon-tabler-device-floppy"
+            ><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path
+              d="M6 4h10l4 4v10a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2"
+            /><path d="M12 14m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" /><path
+              d="M14 4l0 4l-6 0l0 -4"
+            /></svg
+          >
+          Save As
+        </button>
+      </div>
+      <div id="windowsControl" class="flex h-full {isMac ? 'hidden' : ''}">
+        <!-- svelte-ignore a11y_click_events_have_key_events -->
+        <!-- svelte-ignore a11y_no_static_element_interactions -->
+        <div
+          class="windowsButton"
+          on:click={() => {
+            window.runtime.WindowMinimise();
+          }}
+        >
+          <svg
+            width="10"
+            height="1"
+            viewBox="0 0 10 1"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <rect width="10" height="1" fill="white" />
+          </svg>
+        </div>
+        <!-- svelte-ignore a11y_click_events_have_key_events -->
+        <!-- svelte-ignore a11y_no_static_element_interactions -->
+        <div
+          class="windowsButton"
+          on:click={() => {
+            window.runtime.WindowToggleMaximise();
+          }}
+        >
+          <svg
+            class={isMaximize ? "hidden" : ""}
+            width="11"
+            height="10"
+            viewBox="0 0 11 10"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M8 0.5H3C1.89543 0.5 1 1.39543 1 2.5V7.5C1 8.60457 1.89543 9.5 3 9.5H8C9.10457 9.5 10 8.60457 10 7.5V2.5C10 1.39543 9.10457 0.5 8 0.5Z"
+              stroke="white"
+            />
+          </svg>
+          <svg
+            class={isMaximize ? "" : "hidden"}
+            width="11"
+            height="10"
+            viewBox="0 0 11 10"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M2.5 0.5H8C9.10457 0.5 10 1.39543 10 2.5V8M3 9.5H6C7.10457 9.5 8 8.60457 8 7.5V4.5C8 3.39543 7.10457 2.5 6 2.5H3C1.89543 2.5 1 3.39543 1 4.5V7.5C1 8.60457 1.89543 9.5 3 9.5Z"
+              stroke="white"
+            />
+          </svg>
+        </div>
+        <!-- svelte-ignore a11y_click_events_have_key_events -->
+        <!-- svelte-ignore a11y_no_static_element_interactions -->
+        <div
+          class="windowsButton closeButton"
+          on:click={() => {
+            window.runtime.Quit();
+          }}
+        >
+          <svg
+            width="12"
+            height="12"
+            viewBox="0 0 12 12"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path d="M1 11L6 6M11 1L6 6M6 6L11 11M6 6L1 1" stroke="white" />
+          </svg>
+        </div>
+      </div>
     </div>
   </div>
   <div style="height: {isMac ? 'calc(100% - 32px);' : ''}" class="flex h-full">
@@ -808,85 +888,6 @@
                 </button>
               {/each}
             </div>
-          </div>
-
-          <div
-            class="flex gap-1 p-1 px-2 shrink-0 items-center {isMac
-              ? 'hidden'
-              : ''}"
-          >
-            <button
-              class="btn-sm"
-              on:click={obfuscateAll}
-              disabled={$selectedFiles.length === 0}
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="14"
-                height="14"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                class="icon icon-tabler icons-tabler-outline icon-tabler-shield-code"
-                ><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path
-                  d="M12 21a12 12 0 0 1 -8.5 -15a12 12 0 0 0 8.5 -3a12 12 0 0 0 8.5 3a12 12 0 0 1 -.078 7.024"
-                /><path d="M20 21l2 -2l-2 -2" /><path
-                  d="M17 17l-2 2l2 2"
-                /></svg
-              >
-              Obfuscate
-            </button>
-            <button
-              class="btn-sm"
-              on:click={exportFiles}
-              disabled={Object.keys(obfuscatedContent).length === 0}
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="14"
-                height="14"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                class="icon icon-tabler icons-tabler-outline icon-tabler-device-floppy"
-                ><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path
-                  d="M6 4h10l4 4v10a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2"
-                /><path d="M12 14m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" /><path
-                  d="M14 4l0 4l-6 0l0 -4"
-                /></svg
-              >
-              Save
-            </button>
-            <button
-              class="btn-sm"
-              on:click={exportFiles}
-              disabled={Object.keys(obfuscatedContent).length === 0}
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="14"
-                height="14"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                class="icon icon-tabler icons-tabler-outline icon-tabler-device-floppy"
-                ><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path
-                  d="M6 4h10l4 4v10a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2"
-                /><path d="M12 14m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" /><path
-                  d="M14 4l0 4l-6 0l0 -4"
-                /></svg
-              >
-              Save As
-            </button>
           </div>
         </div>
         {#if Object.keys(filesContent).length > 0}

@@ -54,3 +54,20 @@ pre {
 .input-setting{
     @apply bg-white dark:bg-neutral-700/50 text-sm border border-black/15 dark:border-white/15 text-black dark:text-white disabled:text-black/50 dark:disabled:text-white/50 px-3 py-2 rounded-lg cursor-pointer flex gap-1.5 items-center;
 }
+
+.windowsButton{
+    --wails-draggable: false;
+    @apply w-[46px] flex items-center justify-center hover:bg-black/5 dark:hover:bg-white/5;
+}
+
+.windowsButton svg{
+    @apply invert dark:invert-0;
+}
+
+.closeButton{
+    @apply w-[45px] hover:bg-red-700 dark:hover:bg-red-600;
+}
+
+.closeButton:hover svg{
+    @apply invert-0;
+}

@@ -3,15 +3,16 @@ package main
 import (
 	"context"
 	"embed"
+	fs "hyperion/backend/filesystem"
+	ob "hyperion/backend/obfuscator"
+	"log"
+
 	"github.com/wailsapp/wails/v2"
 	"github.com/wailsapp/wails/v2/pkg/options"
 	"github.com/wailsapp/wails/v2/pkg/options/assetserver"
 	"github.com/wailsapp/wails/v2/pkg/options/linux"
 	"github.com/wailsapp/wails/v2/pkg/options/mac"
 	"github.com/wailsapp/wails/v2/pkg/options/windows"
-	fs "hyperion/backend/filesystem"
-	ob "hyperion/backend/obfuscator"
-	"log"
 )
 
 //go:embed all:frontend/dist
@@ -32,6 +33,7 @@ func main() {
 		Height:    768,
 		MinWidth:  600,
 		MinHeight: 400,
+		Frameless: true,
 		AssetServer: &assetserver.Options{
 			Assets: assets,
 		},
