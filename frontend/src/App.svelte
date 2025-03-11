@@ -480,8 +480,8 @@
     >
       <!-- svelte-ignore a11y_consider_explicit_label -->
       <button
-        disabled={selectedFiles.length === 0}
-        class="text-black dark:text-white disabled:opacity-50 p-2 enabled:cursor-pointer flex gap-1 items-center {selectedFiles.length >
+        disabled={$selectedFiles.length === 0}
+        class="text-black dark:text-white disabled:opacity-50 p-2 enabled:cursor-pointer flex gap-1 items-center {$selectedFiles.length >
           0 && isMenuOpen
           ? 'bg-white dark:bg-white/10'
           : ''}"
