@@ -14,7 +14,7 @@
   import { writable, get } from "svelte/store";
   import { obfuscationConfig } from "./stores/configStore";
   import { onMount } from "svelte";
-  import { selectedFile, selectedFiles } from "./stores/selectedFileStore.js";
+  import { selectedFile, selectedFiles, fileTree } from "./stores/selectedFileStore.js";
 
   let previewOriginal = writable(true);
   let filesContent = {};
@@ -27,12 +27,14 @@
   let buttons = [];
   let menuContainer;
 
+  fileTree.set(buildFileTree($selectedFiles));
+
   async function selectFile(filePath) {
-    console.log(`selectFile\`(${filePath})\``);
     if ($selectedFile === filePath) return;
 
     selectedFile.set(filePath);
-
+    fileTree.set(buildFileTree($selectedFiles));
+    renderTree(get(fileTree));
     if (!filesContent[filePath]) {
       const content = await ReadFilesContent([filePath]);
       filesContent = { ...filesContent, ...content };
@@ -90,16 +92,15 @@
 
     return trimmedTree;
   }
-  $: fileTree = buildFileTree(get(selectedFiles));
 
   function handleClick(event) {
     const target = event.target.closest("[data-value]");
     if (target) {
-        let value = target.getAttribute("data-value");
-        value = value.replace(/\//g, "\\");
-        selectFile(value);
+      let value = target.getAttribute("data-value");
+      value = value.replace(/\//g, "\\");
+      selectFile(value);
     }
-}
+  }
 
   function renderTree(tree) {
     return Object.entries(tree)
@@ -109,16 +110,20 @@
           const firstChild = Object.entries(content)[0];
           const isChildLeaf =
             firstChild && !(firstChild[1] && typeof firstChild[1] === "object");
-
+          let isActive = false;
+            if(isChildLeaf){
+              isActive = firstChild[1].replace(/\//g, "\\") == get(selectedFile);
+              if(isActive){
+                console.log(get(selectedFile))
+              }
+            }
           return isChildLeaf
-            ? `<div data-value="${firstChild[1]}" class="cursor-pointer pl-2">${name}</div>`
+            ? `<div data-value="${firstChild[1]}" class="${isActive?'opacity-100':'opacity-50'} cursor-pointer pl-2 hover:opacity-100">${name}</div>`
             : `<ul class="list-none pl-2">
                 <li class="pl-2 dark:text-white">${name}
                   ${renderTree(content)}
                 </li>
               </ul>`;
-        } else {
-          return `<li class="pl-2 dark:text-white text-xs opacity-50">${content}</li>`;
         }
       })
       .join("");
@@ -161,7 +166,7 @@
       if (folderFiles && folderFiles.length > 0) {
         selectedFiles.update((files) => {
           const updatedFiles = [...new Set([...(files || []), ...folderFiles])];
-          fileTree = buildFileTree(updatedFiles);
+          fileTree.set(buildFileTree(updatedFiles));
           return updatedFiles;
         });
       }
@@ -696,11 +701,10 @@
             <ul
               class="flex flex-col min-w-52 max-w-72 min-h-full shrink-0 bg-black/5 dark:bg-white/5 dark:text-white"
             >
-              <!-- {@html renderTree(fileTree)} -->
               <!-- svelte-ignore a11y_click_events_have_key_events -->
               <!-- svelte-ignore a11y_no_static_element_interactions -->
               <div on:click={handleClick}>
-                {@html renderTree(fileTree)}
+                {@html renderTree($fileTree)}
               </div>
             </ul>
           </div>
