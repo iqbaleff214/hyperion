@@ -98,6 +98,14 @@
       keys = Object.keys(trimmedTree);
     }
 
+    if (typeof trimmedTree !== "object" || Array.isArray(trimmedTree)) {
+      const path = trimmedTree;
+      const fileName = trimmedTree.split("/").at(-1);
+      console.log(fileName);
+      trimmedTree = { [fileName]: { path: path } };
+    }
+
+    console.log(trimmedTree);
     return trimmedTree;
   }
 
@@ -121,9 +129,6 @@
           let isActive = false;
           if (isChildLeaf) {
             isActive = firstChild[1].replace(/\//g, "\\") == get(selectedFile);
-            if (isActive) {
-              console.log(get(selectedFile));
-            }
           }
           return isChildLeaf
             ? `<div data-value="${firstChild[1]}" class="${isActive ? "opacity-100" : "opacity-50"} cursor-pointer pl-2 hover:opacity-100">${name}</div>`
@@ -163,6 +168,7 @@
         selectedFiles.update((files) => [
           ...new Set([...(files || []), ...newFiles]),
         ]);
+        fileTree.set(buildFileTree(get(selectedFiles)));
       }
     } catch (error) {
       console.error("Error opening file dialog:", error);
@@ -307,7 +313,8 @@
         <!-- svelte-ignore a11y_no_static_element_interactions -->
         <!-- svelte-ignore a11y_click_events_have_key_events -->
         <div
-          on:click={toggleConfig} style="--wails-draggable: false"
+          on:click={toggleConfig}
+          style="--wails-draggable: false"
           class="dark:text-white p-2 ms-1 cursor-pointer {isMac
             ? ''
             : 'hidden'}"
@@ -347,7 +354,8 @@
         <!-- svelte-ignore a11y_no_static_element_interactions -->
         <!-- svelte-ignore a11y_click_events_have_key_events -->
         <div
-          on:click={toggleConfig} style="--wails-draggable: false"
+          on:click={toggleConfig}
+          style="--wails-draggable: false"
           class="ms-auto dark:text-white p-2 cursor-pointer hover:bg-red-700 hover:text-white hover:text-white rounded-tr-lg"
         >
           <svg
@@ -408,14 +416,18 @@
     class="w-full border-b border-black/15 dark:border-white/15 shrink-0"
   >
     <div class="h-[32px] flex gap-1 shrink-0 items-center">
-      <img class="ms-2 h-[16px] {isMac || !isFrameless ? 'hidden' : ''}" src={logo} alt="app logo" />
+      <img
+        class="ms-2 h-[16px] {isMac || !isFrameless ? 'hidden' : ''}"
+        src={logo}
+        alt="app logo"
+      />
       <div id="windowsMenu" class="flex h-full {isMac ? 'hidden' : ''}">
         <div class="menuButton">File</div>
         <div class="menuButton">Edit</div>
       </div>
       <div class="flex gap-1 p-1 ms-auto">
         <button
-          class="btn-sm "
+          class="btn-sm"
           on:click={obfuscateAll}
           disabled={$selectedFiles.length === 0}
         >
@@ -436,11 +448,7 @@
           >
           Obfuscate All
         </button>
-        <button
-          class="btn-sm"
-          on:click={exportFiles}
-          disabled=true
-        >
+        <button class="btn-sm" on:click={exportFiles} disabled="true">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="14"
@@ -485,7 +493,10 @@
           Save As
         </button>
       </div>
-      <div id="windowsControl" class="flex h-full {(isMac || !isFrameless) ? 'hidden' : ''}">
+      <div
+        id="windowsControl"
+        class="flex h-full {isMac || !isFrameless ? 'hidden' : ''}"
+      >
         <!-- svelte-ignore a11y_click_events_have_key_events -->
         <!-- svelte-ignore a11y_no_static_element_interactions -->
         <div
@@ -560,7 +571,10 @@
       </div>
     </div>
   </div>
-  <div style="height: {isMac || !isFrameless ? 'calc(100% - 32px);' : ''}" class="flex h-full">
+  <div
+    style="height: {isMac || !isFrameless ? 'calc(100% - 32px);' : ''}"
+    class="flex h-full"
+  >
     <div
       style="--wails-draggable:drag;"
       class="flex flex-col border-r border-black/15 dark:border-white/15 bg-black/10"
@@ -870,7 +884,7 @@
                     <!-- svelte-ignore a11y_click_events_have_key_events -->
                     <!-- svelte-ignore a11y_no_static_element_interactions -->
                     <div
-                      class="flex items-center px-1 pe-2 shrink-0 opacity-50 hover:opacity-100"
+                      class="flex items-center px-1 pe-2 shrink-0 opacity-50 hover:opacity-100 hover:text-red-700"
                       on:click={() => unloadFile(filePath)}
                     >
                       <svg
