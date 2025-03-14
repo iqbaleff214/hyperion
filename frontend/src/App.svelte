@@ -10,7 +10,6 @@
     OpenImportedFileLocation,
   } from "../wailsjs/go/main/App";
 
-  import { openFiles, openFolder, buildFileTree } from "./appActions.js";
   import logo from "/src/assets/images/hyperion-blue.png";
   import { writable, get } from "svelte/store";
   import { obfuscationConfig } from "./stores/configStore";
@@ -24,6 +23,14 @@
     obfuscatedContent,
     showContent,
   } from "./stores/selectedFileStore.js";
+  import { 
+    openFiles, 
+    openFolder, 
+    buildFileTree, 
+    exportFiles,
+    removeAllFiles,
+    unloadFile,
+  } from "./appActions.js";
 
   let previewOriginal = writable(true);
   let isMac = navigator.userAgent.includes("Mac");
@@ -88,21 +95,6 @@
         });
       }
     }, 50);
-  }
-
-  function unloadFile(filePath) {
-    filesContent.update((content) => {
-      if (content[filePath]) {
-        const newContent = { ...content };
-        delete newContent[filePath];
-        return newContent;
-      }
-      return content;
-    });
-
-    if ($selectedFile === filePath) {
-      selectedFile.set(null);
-    }
   }
 
   function handleClick(event) {
@@ -225,14 +217,6 @@
     });
   }
 
-  function removeAllFiles() {
-    selectedFiles.set([]);
-    filesContent.set({});
-    obfuscatedContent.set({});
-    showContent.set({});
-    selectedFile.set(null);
-  }
-
   function getFileName(path) {
     return path.split(/[\\/]/).pop();
   }
@@ -249,24 +233,6 @@
       await navigator.clipboard.writeText(content);
     } catch (err) {
       console.error("Failed to copy:", err);
-    }
-  }
-
-  async function exportFiles() {
-    if (
-      get(obfuscatedContent) &&
-      Object.keys(get(obfuscatedContent)).length === 0
-    ) {
-      console.error("No encrypted files to export!");
-      return;
-    }
-
-    try {
-      // @ts-ignore
-      await ExportEncryptedFiles(get(obfuscatedContent));
-      console.log("Files exported successfully!");
-    } catch (error) {
-      console.error("Error exporting files:", error);
     }
   }
 
