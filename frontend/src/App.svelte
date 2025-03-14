@@ -20,12 +20,12 @@
     selectedFile,
     selectedFiles,
     fileTree,
+    filesContent,
+    obfuscatedContent,
+    showContent,
   } from "./stores/selectedFileStore.js";
 
   let previewOriginal = writable(true);
-  let filesContent = {};
-  let obfuscatedContent = {};
-  let showContent = {};
   let isMac = navigator.userAgent.includes("Mac");
   let isFrameless = false;
   // isMac = true;
@@ -35,7 +35,6 @@
   let menuContainer;
   let isMaximize = false;
   let activeMenu = null;
-
 
   function toggleMenu(name) {
     activeMenu = activeMenu === name ? null : name;
@@ -71,9 +70,10 @@
     selectedFile.set(filePath);
     fileTree.set(buildFileTree($selectedFiles));
     renderTree(get(fileTree));
-    if (!filesContent[filePath]) {
+    if (!get(filesContent)[filePath]) {
       const content = await ReadFilesContent([filePath]);
-      filesContent = { ...filesContent, ...content };
+
+      filesContent.update((fc) => ({ ...fc, ...content }));
     }
 
     setTimeout(() => {
@@ -91,16 +91,18 @@
   }
 
   function unloadFile(filePath) {
-    if (filesContent[filePath]) {
-      delete filesContent[filePath];
-      filesContent = { ...filesContent };
-    }
+    filesContent.update((content) => {
+      if (content[filePath]) {
+        const newContent = { ...content };
+        delete newContent[filePath];
+        return newContent;
+      }
+      return content;
+    });
 
     if ($selectedFile === filePath) {
       selectedFile.set(null);
     }
-    fileTree.set(buildFileTree($selectedFiles));
-    renderTree(get(fileTree));
   }
 
   function handleClick(event) {
@@ -160,15 +162,17 @@
   }
 
   async function obfuscateFile(filePath) {
-    if (!filePath || !filesContent[filePath]) {
+    if (!filePath || !get(filesContent)[filePath]) {
       console.warn("Invalid file or file not found!");
       return;
     }
 
     try {
-      obfuscatedContent[filePath] = await ObfuscateJS(filesContent[filePath], {
-        ...$obfuscationConfig,
+      const obfuscated = await ObfuscateJS(get(filesContent)[filePath], {
+        ...get(obfuscationConfig),
       });
+
+      obfuscatedContent.update((oc) => ({ ...oc, [filePath]: obfuscated }));
     } catch (error) {
       console.error("Error obfuscating file:", error);
     }
@@ -182,17 +186,17 @@
 
     try {
       const newFilesContent = await ReadFilesContent(get(selectedFiles));
-      filesContent = { ...filesContent, ...newFilesContent };
-
-      for (let filePath of Object.keys(filesContent)) {
-        obfuscatedContent[filePath] = await ObfuscateJS(
-          filesContent[filePath],
-          { ...$obfuscationConfig },
+      filesContent.update((fc) => ({ ...fc, ...newFilesContent }));
+      const updatedObfuscatedContent = { ...get(obfuscatedContent) };
+      for (let filePath of Object.keys(newFilesContent)) {
+        updatedObfuscatedContent[filePath] = await ObfuscateJS(
+          newFilesContent[filePath],
+          { ...get(obfuscationConfig) },
         );
       }
-
-      const filePaths = Object.keys(filesContent);
-      if (filePaths.length > 0 && !$selectedFile) {
+      obfuscatedContent.set(updatedObfuscatedContent);
+      const filePaths = Object.keys(get(filesContent));
+      if (filePaths.length > 0 && !get(selectedFile)) {
         selectedFile.set(filePaths[0]);
       }
     } catch (error) {
@@ -223,9 +227,9 @@
 
   function removeAllFiles() {
     selectedFiles.set([]);
-    filesContent = {};
-    obfuscatedContent = {};
-    showContent = {};
+    filesContent.set({});
+    obfuscatedContent.set({});
+    showContent.set({});
     selectedFile.set(null);
   }
 
@@ -234,7 +238,10 @@
   }
 
   function toggleShowCode(filePath) {
-    showContent[filePath] = !showContent[filePath];
+    showContent.update((sc) => ({
+      ...sc,
+      [filePath]: !sc[filePath],
+    }));
   }
 
   async function copyOutput(content) {
@@ -246,12 +253,21 @@
   }
 
   async function exportFiles() {
-    if (Object.keys(obfuscatedContent).length === 0) {
+    if (
+      get(obfuscatedContent) &&
+      Object.keys(get(obfuscatedContent)).length === 0
+    ) {
       console.error("No encrypted files to export!");
       return;
     }
-    // @ts-ignore
-    await ExportEncryptedFiles(obfuscatedContent);
+
+    try {
+      // @ts-ignore
+      await ExportEncryptedFiles(get(obfuscatedContent));
+      console.log("Files exported successfully!");
+    } catch (error) {
+      console.error("Error exporting files:", error);
+    }
   }
 
   async function openImportedFolder(filePath) {
@@ -463,7 +479,7 @@
         <button
           class="btn-sm"
           on:click={exportFiles}
-          disabled={Object.keys(obfuscatedContent).length === 0}
+          disabled={Object.keys($obfuscatedContent).length === 0}
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -813,7 +829,7 @@
             bind:this={menuContainer}
           >
             <div class="flex flex-row h-full">
-              {#each $selectedFiles.filter((file) => filesContent[file]) as filePath, i}
+              {#each $selectedFiles.filter((file) => $filesContent[file]) as filePath, i}
                 <button
                   class="btn-block"
                   class:active={$selectedFile === filePath}
@@ -826,7 +842,7 @@
                       class="flex flex-row w-full items-center grow ps-3 overflow-hidden"
                       on:click={() => selectFile(filePath)}
                     >
-                      {#if obfuscatedContent[filePath]}
+                      {#if $obfuscatedContent[filePath]}
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
                           width="16"
@@ -903,7 +919,7 @@
             </div>
           </div>
         </div>
-        {#if Object.keys(filesContent).length > 0}
+        {#if Object.keys($filesContent).length > 0}
           <div style="height: 200px;" class="flex flex-col gap-2 p-2 grow">
             {#if $selectedFile}
               <div
@@ -920,7 +936,7 @@
                       {$selectedFile}
                     </div>
                   </div>
-                  {#if obfuscatedContent[$selectedFile]}
+                  {#if $obfuscatedContent[$selectedFile]}
                     <div class="flex ms-auto gap-1 shrink-0 items-start">
                       <button
                         class="btn"
@@ -944,12 +960,14 @@
                             d="M21 12c-2.4 4 -5.4 6 -9 6c-3.6 0 -6.6 -2 -9 -6c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6"
                           />
                         </svg>
-                        {showContent[$selectedFile] ? "Hide Code" : "Show Code"}
+                        {$showContent[$selectedFile]
+                          ? "Hide Code"
+                          : "Show Code"}
                       </button>
                       <button
                         class="btn"
                         on:click={() =>
-                          copyOutput(obfuscatedContent[$selectedFile])}
+                          copyOutput($obfuscatedContent[$selectedFile])}
                       >
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
@@ -1007,29 +1025,29 @@
                   {/if}
                 </div>
                 <div class="overflow-y-auto grow">
-                  {#if !obfuscatedContent[$selectedFile]}
+                  {#if !$obfuscatedContent[$selectedFile]}
                     <div class="p-4">
                       <pre
-                        class="whitespace-pre-wrap break-words">{filesContent[
+                        class="whitespace-pre-wrap break-words">{$filesContent[
                           $selectedFile
                         ]}
                     </pre>
                     </div>
                   {/if}
-                  {#if showContent[$selectedFile]}
+                  {#if $showContent[$selectedFile]}
                     <div
                       class="p-4 border-b border-black/15 dark:border-white/15"
                     >
                       <pre
-                        class="whitespace-pre-wrap break-words">{filesContent[
+                        class="whitespace-pre-wrap break-words">{$filesContent[
                           $selectedFile
                         ]}
                         </pre>
                     </div>
                   {/if}
-                  {#if obfuscatedContent[$selectedFile]}
+                  {#if $obfuscatedContent[$selectedFile]}
                     <pre
-                      class="p-4 rounded-lg whitespace-pre-wrap break-words">{obfuscatedContent[
+                      class="p-4 rounded-lg whitespace-pre-wrap break-words">{$obfuscatedContent[
                         $selectedFile
                       ]}</pre>
                   {/if}
