@@ -10,10 +10,12 @@
     OpenImportedFileLocation,
   } from "../wailsjs/go/main/App";
 
+  import { openFiles, openFolder, buildFileTree } from "./appActions.js";
   import logo from "/src/assets/images/hyperion-blue.png";
   import { writable, get } from "svelte/store";
   import { obfuscationConfig } from "./stores/configStore";
-  import { onMount } from "svelte";
+  import { onMount, onDestroy } from "svelte";
+  import { menuConfig } from "./menuConfig.js";
   import {
     selectedFile,
     selectedFiles,
@@ -28,10 +30,38 @@
   let isFrameless = false;
   // isMac = true;
   let isFullscreen = false;
-  let isMenuOpen = true;
+  let isOpen = true;
   let buttons = [];
   let menuContainer;
   let isMaximize = false;
+  let activeMenu = null;
+
+
+  function toggleMenu(name) {
+    activeMenu = activeMenu === name ? null : name;
+  }
+
+  function executeAction(action) {
+    if (typeof action === "function") action();
+    setTimeout(() => {
+      activeMenu = null;
+    }, 0);
+  }
+
+  function handleClickOutside(event) {
+    const menuElement = document.getElementById("windowsMenu");
+    if (menuElement && !menuElement.contains(event.target)) {
+      activeMenu = null;
+    }
+  }
+
+  onMount(() => {
+    document.addEventListener("click", handleClickOutside);
+  });
+
+  onDestroy(() => {
+    document.removeEventListener("click", handleClickOutside);
+  });
 
   fileTree.set(buildFileTree($selectedFiles));
 
@@ -73,42 +103,6 @@
     renderTree(get(fileTree));
   }
 
-  function buildFileTree(files) {
-    const tree = {};
-
-    files.forEach((file) => {
-      const normalizedFile = file.replace(/\\/g, "/");
-      const parts = normalizedFile.split("/");
-
-      let current = tree;
-      parts.forEach((part, index) => {
-        if (!current[part]) {
-          current[part] =
-            index === parts.length - 1 ? { path: normalizedFile } : {};
-        }
-        current = current[part];
-      });
-    });
-
-    let keys = Object.keys(tree);
-    let trimmedTree = tree;
-
-    while (keys.length === 1) {
-      trimmedTree = trimmedTree[keys[0]];
-      keys = Object.keys(trimmedTree);
-    }
-
-    if (typeof trimmedTree !== "object" || Array.isArray(trimmedTree)) {
-      const path = trimmedTree;
-      const fileName = trimmedTree.split("/").at(-1);
-      console.log(fileName);
-      trimmedTree = { [fileName]: { path: path } };
-    }
-
-    console.log(trimmedTree);
-    return trimmedTree;
-  }
-
   function handleClick(event) {
     const target = event.target.closest("[data-value]");
     if (target) {
@@ -142,8 +136,8 @@
       .join("");
   }
 
-  function toggleMenu() {
-    isMenuOpen = !isMenuOpen;
+  function toggleSidebar() {
+    isOpen = !isOpen;
   }
 
   async function checkFullscreen() {
@@ -159,35 +153,6 @@
 
   function togglePreview() {
     previewOriginal.update((prev) => !prev);
-  }
-
-  async function openFiles() {
-    try {
-      const newFiles = await OpenFiles();
-      if (newFiles.length > 0) {
-        selectedFiles.update((files) => [
-          ...new Set([...(files || []), ...newFiles]),
-        ]);
-        fileTree.set(buildFileTree(get(selectedFiles)));
-      }
-    } catch (error) {
-      console.error("Error opening file dialog:", error);
-    }
-  }
-
-  async function openFolder() {
-    try {
-      const folderFiles = await OpenFolder();
-      if (folderFiles && folderFiles.length > 0) {
-        selectedFiles.update((files) => {
-          const updatedFiles = [...new Set([...(files || []), ...folderFiles])];
-          fileTree.set(buildFileTree(updatedFiles));
-          return updatedFiles;
-        });
-      }
-    } catch (error) {
-      console.error("Error opening folder dialog:", error);
-    }
   }
 
   function toggleConfig() {
@@ -422,8 +387,35 @@
         alt="app logo"
       />
       <div id="windowsMenu" class="flex h-full {isMac ? 'hidden' : ''}">
-        <div class="menuButton">File</div>
-        <div class="menuButton">Edit</div>
+        {#each menuConfig as menu}
+          <div class="relative">
+            <!-- svelte-ignore a11y_no_static_element_interactions -->
+            <!-- svelte-ignore a11y_click_events_have_key_events -->
+            <div class="menuButton" on:click={() => toggleMenu(menu.name)}>
+              {menu.name}
+            </div>
+
+            {#if activeMenu === menu.name}
+              <div class="menuDropdown z-10">
+                {#each menu.children as item}
+                  <!-- svelte-ignore a11y_click_events_have_key_events -->
+                  <!-- svelte-ignore a11y_no_static_element_interactions -->
+                  <div
+                    on:click={() => executeAction(item.action)}
+                    class="menuItem flex gap-1 items-center justify-between"
+                  >
+                    <div class="text-sm">
+                      {item.name}
+                    </div>
+                    <div class="text-xs">
+                      {item.shortcut ? `(${item.shortcut})` : ""}
+                    </div>
+                  </div>
+                {/each}
+              </div>
+            {/if}
+          </div>
+        {/each}
       </div>
       <div class="flex gap-1 p-1 ms-auto">
         <button
@@ -583,10 +575,10 @@
       <button
         disabled={$selectedFiles.length === 0}
         class="text-black dark:text-white disabled:opacity-50 p-2 enabled:cursor-pointer flex gap-1 items-center {$selectedFiles.length >
-          0 && isMenuOpen
+          0 && isOpen
           ? 'bg-white dark:bg-white/10'
           : ''}"
-        on:click={toggleMenu}
+        on:click={toggleSidebar}
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -759,7 +751,7 @@
         ? 'hidden'
         : ''}"
     >
-      {#if $selectedFiles.length > 0 && isMenuOpen}
+      {#if $selectedFiles.length > 0 && isOpen}
         <div>
           <div
             class="h-[40px] flex items-center p-1 px-2 pe-0.5 text-sm dark:text-white bg-black/5 dark:bg-white/5 border-r border-black/15 dark:border-white/15"

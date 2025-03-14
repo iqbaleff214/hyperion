@@ -75,5 +75,17 @@ pre {
 
 .menuButton{
     --wails-draggable: false;
-    @apply cursor-pointer flex items-center text-sm dark:text-white px-2 dark:hover:bg-white/10 hover:bg-white/75;
+    @apply cursor-pointer h-full flex items-center text-sm dark:text-white px-2 dark:hover:bg-white/10 hover:bg-black/10;
 }
+
+  .menuDropdown {
+    --wails-draggable: false;
+    @apply absolute left-2 min-w-40 bg-neutral-100 text-black rounded-lg shadow overflow-auto p-1 border border-black/20;
+    max-height: calc(100vh - 40px);
+    top: calc(100% + 4px);
+    scrollbar-width: none;
+  }
+
+  .menuItem {
+    @apply rounded px-2 py-1.5 cursor-pointer hover:bg-black/10 whitespace-nowrap;
+  }
