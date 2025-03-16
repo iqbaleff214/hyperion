@@ -9,5 +9,8 @@
   "author": {
     "name": "M. Iqbal Effendi",
     "email": "iqbaleff214@gmail.com"
+  },
+  "windows": {
+    "disableScrollBounce": true
   }
 }

@@ -77,7 +77,7 @@ func (config *Config) save() error {
 }
 
 func (config *Config) Save(c Config) {
-	log.Println("Saving obfuscation configuration", c)
+	_ = config.save()
 }
 
 func (config *Config) GetConfig() Config {

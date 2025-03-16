@@ -3,6 +3,7 @@ package filesystem
 import (
 	"context"
 	"errors"
+	"fmt"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 	"io/fs"
 	"os/exec"
@@ -24,15 +25,21 @@ func (d *Dialog) SetContext(ctx context.Context) {
 }
 
 func (d *Dialog) OpenMultipleFilesDialog() ([]string, error) {
-	return runtime.OpenMultipleFilesDialog(d.ctx, runtime.OpenDialogOptions{
+	paths, err := runtime.OpenMultipleFilesDialog(d.ctx, runtime.OpenDialogOptions{
 		Title: "Select file(s)",
 		Filters: []runtime.FileFilter{
 			{DisplayName: "JavaScript", Pattern: "*.js"},
 			{DisplayName: "PHP", Pattern: "*.php"},
+			{DisplayName: "Ruby", Pattern: "*.rb"},
+			{DisplayName: "Python", Pattern: "*.py"},
 			{DisplayName: "All Files", Pattern: "*"},
 		},
 		ShowHiddenFiles: true,
 	})
+
+	fmt.Println(paths)
+
+	return paths, err
 }
 
 func (d *Dialog) OpenDirectoryDialog() ([]string, error) {
@@ -47,19 +54,56 @@ func (d *Dialog) OpenDirectoryDialog() ([]string, error) {
 		return nil, errors.New("could not open folder")
 	}
 
+	skipDirs := map[string]bool{
+		".git": true,
+		// JavaScript / Node.js
+		"node_modules": true,
+		// PHP
+		"vendor": true,
+		// Ruby
+		"bundle": true,
+		".gem":   true,
+		// Python
+		"__pycache__":   true,
+		"env":           true,
+		"venv":          true,
+		".venv":         true,
+		"site-packages": true,
+	}
+
 	var files []string
-	err = filepath.WalkDir(path, func(path string, d fs.DirEntry, err error) error {
+	err = filepath.WalkDir(path, func(path string, dir fs.DirEntry, err error) error {
 		if err != nil {
 			return err
 		}
 
-		if !d.IsDir() && (strings.HasSuffix(path, ".js") || strings.HasSuffix(path, ".php")) {
+		if dir.IsDir() && skipDirs[dir.Name()] {
+			return fs.SkipDir
+		}
+
+		if !dir.IsDir() && d.hasAllowedSuffix(path) {
 			files = append(files, path)
 		}
 
 		return nil
 	})
 	return files, err
+}
+
+func (d *Dialog) hasAllowedSuffix(path string) bool {
+	allowed := map[string]bool{
+		".js":  true,
+		".php": true,
+		".rb":  true,
+		".py":  true,
+	}
+
+	for ext := range allowed {
+		if strings.HasSuffix(path, ext) {
+			return true
+		}
+	}
+	return false
 }
 
 func (d *Dialog) OpenFileLocation(path string) error {

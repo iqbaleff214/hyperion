@@ -1,8 +1,8 @@
 import { mount } from 'svelte'
-import App from './App.svelte'
+import Hyperion from "./Hyperion.svelte";
 import './style.css'
 
-const app = mount(App, {
+const app = mount(Hyperion, {
   target: document.getElementById('app'),
 })
 
