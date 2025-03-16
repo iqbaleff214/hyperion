@@ -11,6 +11,7 @@
     import {MessageInfoDialog, OpenDirectoryDialog, OpenMultipleFilesDialog} from "../wailsjs/go/filesystem/Dialog";
     import {onDestroy, onMount} from "svelte";
     import {EventsEmit} from "../wailsjs/runtime";
+    import PreviewAction from "./components/PreviewAction.svelte";
 
     let isExplorerOpen: boolean = $state<boolean>(true);
 
@@ -194,7 +195,12 @@
                 <button onclick={openFile} class="text-black dark:text-white">Open File</button>
                 <button onclick={openFolder} class="text-black dark:text-white">Open Folder</button>
             {:else if (Object.keys(fileManagement.files).length > 0)}
-                <Preview {closeFile}/>
+                <Preview {closeFile}>
+                    <PreviewAction
+                        obfuscate={() => obfuscate(fileManagement.currentPath)}
+                        cancel={() => undo(fileManagement.currentPath)}
+                    />
+                </Preview>
             {:else}
                 <div class="flex items-center justify-center h-full">
                     <img class="min-w-1 mx-auto my-auto object-scale-down max-h-full max-h-full grayscale opacity-25 pointer-events-none"

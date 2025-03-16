@@ -3,10 +3,13 @@
     import PreviewTab from "./PreviewTab.svelte";
 
     type Prop = {
-        closeFile: (path: string) => void
+        closeFile: (path: string) => void,
+        children: () => any,
     };
 
-    let {closeFile}: Prop = $props();
+    let {
+        closeFile, children
+    }: Prop = $props();
 
     let paths: string[] = $derived(Object.keys(fileManagement.files));
 
@@ -20,7 +23,8 @@
     <PreviewTab {paths} {closeTab}/>
 
     {#if (fileManagement.currentPath)}
-    <div class="grow overflow-y-auto">
+    <div class="grow overflow-y-auto relative w-full">
+        {@render children?.()}
         <div class="text-sm font-mono">
             {#each (fileManagement.obfuscated[fileManagement.currentPath] ?? fileManagement.files[fileManagement.currentPath]).split('\n') as row, i}
                 <div class="flex gap-x-5 hover:bg-black/5 dark:hover:bg-white/10">
