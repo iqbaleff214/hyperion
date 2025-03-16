@@ -44,7 +44,7 @@
         {#each Object.entries(folders) as [name, value]}
             <li>
                 {#if typeof value === "object"}
-                    <button class="cursor-pointer w-full text-start truncate flex items-center gap-x-1 text-sm font-light text-neutral-500 hover:dark:text-neutral-200 hover:text-neutral-800"
+                    <button class="cursor-pointer w-full text-start truncate flex items-center gap-x-1 text-sm font-normal text-neutral-500 hover:dark:text-neutral-200 hover:text-neutral-800"
                             onclick={() => toggleFolder(name)}>
                         <FolderIcon opened={openFolders[name]}/>
                         <span class="truncate">{name}</span>
@@ -55,7 +55,7 @@
                         </div>
                     {/if}
                 {:else if typeof value === "string"}
-                    <button class="cursor-pointer w-full text-start truncate flex items-center gap-x-1 text-sm font-light { textClass(name, value) }"
+                    <button class="cursor-pointer w-full text-start truncate flex items-center gap-x-1 text-sm font-normal { textClass(name, value) }"
                             onclick={() => readFile(value)}>
                         <FileExtensionIcon path={name}/>
                         <span class="truncate">{name}</span>
