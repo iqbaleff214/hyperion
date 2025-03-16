@@ -46,8 +46,7 @@ func main() {
 			dialog, file, obfuscator,
 		},
 		Windows: &windows.Options{
-			WindowIsTranslucent: true,
-			BackdropType:        windows.Mica,
+			WindowIsTranslucent: false,
 		},
 		Mac: &mac.Options{
 			WindowIsTranslucent: true,
