@@ -56,7 +56,7 @@ func main() {
 			WindowIsTranslucent: true,
 		},
 		Debug: options.Debug{
-			OpenInspectorOnStartup: true,
+			OpenInspectorOnStartup: false,
 		},
 	})
 	app.SetApplicationMenu(menuHelper.createNewMenu(app))
