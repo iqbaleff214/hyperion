@@ -6,7 +6,7 @@
     import Preview from "./components/Preview.svelte";
     import FileExplorer from "./components/FileExplorer.svelte";
     import {buildTree, flattenTree, removeCommonPrefix} from "./util/helpers";
-    import {ReadFile} from "../wailsjs/go/filesystem/FileManager";
+    import {ReadFile, WriteFile} from "../wailsjs/go/filesystem/FileManager";
     import {Obfuscate} from "../wailsjs/go/obfuscator/Obfuscator";
     import {MessageInfoDialog, OpenDirectoryDialog, OpenMultipleFilesDialog} from "../wailsjs/go/filesystem/Dialog";
     import {onDestroy, onMount} from "svelte";
@@ -45,6 +45,39 @@
             fileManagement.currentPath = path;
         }).catch((error: any) => {
             MessageInfoDialog('Error', error);
+        });
+    };
+
+    const saveFile = (path: string) => {
+        if (!(path in fileManagement.obfuscated))
+            return;
+
+        const obfuscated: string = fileManagement.obfuscated[path];
+        WriteFile(fileManagement.folderPath + '/' + path, obfuscated).then(() => {
+            fileManagement.files[path] = obfuscated;
+
+            delete fileManagement.obfuscated[path];
+        }).catch((error: any) => {
+            MessageInfoDialog('Error', error);
+        });
+
+    };
+
+    const saveAll = () => {
+        const paths = Object.keys(fileManagement.obfuscated);
+        Promise.all(paths.map(path =>
+            WriteFile(fileManagement.folderPath + '/' + path, fileManagement.obfuscated[path])
+                .then(() => {
+                    fileManagement.files[path] = fileManagement.obfuscated[path];
+                    delete fileManagement.obfuscated[path];
+                })
+                .catch((error: any) => {
+                    MessageInfoDialog('Error', error);
+                })
+        )).then(() => {
+            console.log('All files saved successfully');
+        }).catch(() => {
+            console.log('Some files failed to save');
         });
     };
 
@@ -117,6 +150,10 @@
         window?.runtime?.EventsOn("menu:open-folder", openFolder);
         window?.runtime?.EventsOn("menu:close", () => closeFile(fileManagement.currentPath));
         window?.runtime?.EventsOn("menu:close-folder", closeFolder);
+
+        window?.runtime?.EventsOn("menu:save", () => saveFile(fileManagement.currentPath));
+        window?.runtime?.EventsOn("menu:save-as", () => null);
+        window?.runtime?.EventsOn("menu:save-all", saveAll);
 
         window?.runtime?.EventsOn("run:undo", () => undo(fileManagement.currentPath));
         window?.runtime?.EventsOn("run:undo-all", () => fileManagement.obfuscated = {});

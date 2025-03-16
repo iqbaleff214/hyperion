@@ -62,10 +62,13 @@ func (mn *menu) createNewMenu(app *application.Application) *m.Menu {
 		runtime.EventsEmit(mn.ctx, "menu:save")
 	})
 	//mn.items[menuItemSave].Disable()
-	mn.items[menuItemSaveAs] = fileMenu.AddText("Save As", keys.Combo("s", keys.ShiftKey, keys.CmdOrCtrlKey), func(_ *m.CallbackData) {
-		runtime.EventsEmit(mn.ctx, "menu:save-as")
-	})
+	//mn.items[menuItemSaveAs] = fileMenu.AddText("Save As", keys.Combo("s", keys.ShiftKey, keys.CmdOrCtrlKey, keys.OptionOrAltKey), func(_ *m.CallbackData) {
+	//	runtime.EventsEmit(mn.ctx, "menu:save-as")
+	//})
 	//mn.items[menuItemSaveAs].Disable()
+	fileMenu.AddText("Save All", keys.Combo("s", keys.ShiftKey, keys.CmdOrCtrlKey), func(_ *m.CallbackData) {
+		runtime.EventsEmit(mn.ctx, "menu:save-all")
+	})
 	fileMenu.AddSeparator()
 	mn.items[menuItemClose] = fileMenu.AddText("Close", keys.CmdOrCtrl("w"), func(_ *m.CallbackData) {
 		runtime.EventsEmit(mn.ctx, "menu:close")
