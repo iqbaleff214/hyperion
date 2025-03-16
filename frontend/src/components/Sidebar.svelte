@@ -14,7 +14,7 @@
 </script>
 
 <div class="flex flex-col gap-y-1 border-r border-black/15 dark:border-white/15 p-1.5">
-    <SidebarItem onclick={folderFunction} active={folderActive} tooltip="File Explorer">
+    <SidebarItem onclick={folderFunction} active={folderActive}>
         {#snippet darkIcon()}
             <img src={folderDarkIcon} alt="folder icon">
         {/snippet}
