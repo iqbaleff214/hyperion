@@ -9,7 +9,7 @@ import (
 
 type Config struct {
 	Minify         bool `json:"minify"`
-	StringLiteral  bool `json:"string_literal"`
+	UnicodeString  bool `json:"unicode_string"`
 	LoopStatement  bool `json:"loop_statement"`
 	IfStatement    bool `json:"if_statement"`
 	ConstantName   bool `json:"constant_name"`

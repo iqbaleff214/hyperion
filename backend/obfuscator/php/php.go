@@ -1,6 +1,8 @@
 package php
 
 import (
+	"fmt"
+	"hyperion/backend/util"
 	"regexp"
 	"strings"
 )
@@ -17,6 +19,19 @@ func (o Obfuscation) Minify(code string) (string, error) {
 
 	code = strings.TrimSpace(code)
 	code = regexp.MustCompile(`\s+`).ReplaceAllString(code, " ")
+
+	return code, nil
+}
+
+// UnicodeString - string to unicode
+func (o Obfuscation) UnicodeString(code string) (string, error) {
+	rgx := regexp.MustCompile(`"(?:\\.|[^"])*?"|'(?:\\.|[^'])*?'|` + "`" + `(?:\\.|[^` + "`" + `])*?` + "`")
+	code = rgx.ReplaceAllStringFunc(code, func(match string) string {
+		quote := match[:1]
+		original := match[1 : len(match)-1]
+		obfuscated := util.StringToHex(original)
+		return fmt.Sprintf("%s%s%s", quote, obfuscated, quote)
+	})
 
 	return code, nil
 }

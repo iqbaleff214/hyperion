@@ -26,6 +26,19 @@ func (o Obfuscation) Minify(code string) (string, error) {
 	return code, nil
 }
 
+// UnicodeString - string to unicode
+func (o Obfuscation) UnicodeString(code string) (string, error) {
+	rgx := regexp.MustCompile(`"(?:\\.|[^"])*?"|'(?:\\.|[^'])*?'|` + "`" + `(?:\\.|[^` + "`" + `])*?` + "`")
+	code = rgx.ReplaceAllStringFunc(code, func(match string) string {
+		quote := match[:1]
+		original := match[1 : len(match)-1]
+		obfuscated := util.StringToUnicode(original)
+		return fmt.Sprintf("%s%s%s", quote, obfuscated, quote)
+	})
+
+	return code, nil
+}
+
 // RefactorLoopStatement
 // TODO: self-explanatory
 func (o Obfuscation) RefactorLoopStatement(code string) (string, error) {

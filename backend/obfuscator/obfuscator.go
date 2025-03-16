@@ -22,6 +22,7 @@ func NewObfuscator(config *Config) *Obfuscator {
 
 type IObfuscation interface {
 	Minify(code string) (string, error)
+	UnicodeString(code string) (string, error)
 	RefactorLoopStatement(code string) (string, error)
 	RefactorIfStatement(code string) (string, error)
 	RenameVariable(code string) (string, error)
@@ -65,6 +66,13 @@ func (o *Obfuscator) Obfuscate(path string) (string, error) {
 
 	if o.config.RemoveComments {
 		content, err = obfuscation.RemoveComment(content)
+		if err != nil {
+			return content, err
+		}
+	}
+
+	if o.config.UnicodeString {
+		content, err = obfuscation.UnicodeString(content)
 		if err != nil {
 			return content, err
 		}

@@ -1,20 +1,20 @@
-package js_test
+package php_test
 
 import (
 	"fmt"
 	"github.com/stretchr/testify/assert"
-	"hyperion/backend/obfuscator/js"
+	"hyperion/backend/obfuscator/php"
 	"os"
 	"path/filepath"
 	"strings"
 	"testing"
 )
 
-var obfuscator = js.Obfuscation{}
+var obfuscator = php.Obfuscation{}
 var code string
 
 func init() {
-	relativePath := "../examples/example.js"
+	relativePath := "../examples/example.php"
 	absolutePath, err := filepath.Abs(relativePath)
 	if err != nil {
 		panic(err)
@@ -36,6 +36,7 @@ func TestObfuscation_RemoveComment(t *testing.T) {
 
 	assert.Zero(t, strings.Count(content, "//"), "Expected code to not have single-line comments")
 	assert.Zero(t, strings.Count(content, "/**"), "Expected code to not have multi-line comments")
+	assert.Zero(t, strings.Count(content, "#"), "Expected code to not have multi-line comments")
 }
 
 func TestObfuscation_RenameVariable(t *testing.T) {

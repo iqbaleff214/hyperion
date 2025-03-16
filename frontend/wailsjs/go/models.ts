@@ -2,7 +2,7 @@ export namespace obfuscator {
 	
 	export class Config {
 	    minify: boolean;
-	    string_literal: boolean;
+	    unicode_string: boolean;
 	    loop_statement: boolean;
 	    if_statement: boolean;
 	    constant_name: boolean;
@@ -17,7 +17,7 @@ export namespace obfuscator {
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
 	        this.minify = source["minify"];
-	        this.string_literal = source["string_literal"];
+	        this.unicode_string = source["unicode_string"];
 	        this.loop_statement = source["loop_statement"];
 	        this.if_statement = source["if_statement"];
 	        this.constant_name = source["constant_name"];

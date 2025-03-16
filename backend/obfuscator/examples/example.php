@@ -2,7 +2,7 @@
 
 CONST CONSTANT_NAME = 'CONSTANT_NAME';
 const constantName = "constantName";
-define("constant_name", "constant_name");
+// define("constant_name", "constant_name");
 Const ConstantName = "ConstantName";
 
 $variableName1 = "VARIABLE_NAME_1";
@@ -24,8 +24,8 @@ function functionName1()
     echo "DECEPTION: constantNameCONSTANT_NAME constant_name-ConstantName\n"; // Just string
     echo "DECEPTION: " . constantName . " " . CONSTANT_NAME . "\n"; // This is constant, bro
     echo 'DECEPTION: ${CONSTANT_NAME}' . "\n"; // String
-    echo "DECEPTION: ${constant_name}" . "\n"; // String again
-    echo constantName . " " . CONSTANT_NAME . " " . constant_name . " " . ConstantName . "\n";
+    //echo "DECEPTION: ${constant_name}" . "\n"; // String again
+    echo constantName . " " . CONSTANT_NAME . " " . ConstantName . "\n";
 }
 
 // ARROW FUNCTION WITHOUT RETURN (PHP 7.4+ menggunakan fungsi anonim)
@@ -34,8 +34,8 @@ $functionName2 = function () use ($variableName6, $variableName5, $variableName2
     // echo "DECEPTION: variableName1 variableName6variableName4\n";
     echo "DECEPTION: variableName3 variableName2variableName5\n"; // Just string
     echo "DECEPTION: " . $variableName6 . " " . $variableName2 . "\n"; // This is variable, bro
-    echo 'DECEPTION: ${variableName6}' . "\n"; // String
-    echo "DECEPTION: ${variableName6}" . "\n"; // String again
+    echo 'DECEPTION: {$variableName6}' . "\n"; // String
+    echo "DECEPTION: {$variableName6}" . "\n"; // String again
     echo $variableName6 . " " . $variableName5 . " " . $variableName2 . " " . $variableName3 . " " . $variableName4 . "\n";
 };
 
