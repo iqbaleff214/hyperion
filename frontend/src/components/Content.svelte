@@ -37,7 +37,7 @@
     }
 </script>
 
-<div class="flex flex-1" bind:this={container}>
+<div class="flex flex-1 grow w-full" bind:this={container}>
     {#if (isExplorerOpen)}
         <div class="text-sm overflow-x-hidden h-full flex flex-col" style="width: {width}%">
             {@render sideContent?.()}
@@ -48,7 +48,7 @@
         </div>
     {/if}
 
-    <div class="flex-1 h-full">
+    <div class="flex-1 h-full overflow-x-hidden">
         {@render mainContent?.()}
     </div>
 </div>

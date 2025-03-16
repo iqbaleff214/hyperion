@@ -33,7 +33,7 @@
 </script>
 
 <div class="shrink-0 h-[30px] flex gap-1 dark:text-white w-full border-b border-black/15 dark:border-white/15">
-    <div class="grow text-sm overflow-x-auto flex gap-x-1" style="scrollbar-width: none;">
+    <div class="text-sm overflow-x-auto flex gap-x-1 flex-1 w-full" style="scrollbar-width: none;">
         {#each paths as tab, i}
             <div onmouseenter={() => onHover(i)} onmouseleave={() => onHoverLeave(i)} onclick={() => onActive(i)}
                  role="none"
