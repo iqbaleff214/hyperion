@@ -5,10 +5,12 @@
     import Content from "./components/Content.svelte";
     import Preview from "./components/Preview.svelte";
     import FileExplorer from "./components/FileExplorer.svelte";
-    import {buildTree, removeCommonPrefix} from "./util/helpers";
-    import {MessageInfoDialog, OpenDirectoryDialog, OpenMultipleFilesDialog} from "../wailsjs/go/filesystem/Dialog";
+    import {buildTree, flattenTree, removeCommonPrefix} from "./util/helpers";
     import {ReadFile} from "../wailsjs/go/filesystem/FileManager";
+    import {Obfuscate} from "../wailsjs/go/obfuscator/Obfuscator";
+    import {MessageInfoDialog, OpenDirectoryDialog, OpenMultipleFilesDialog} from "../wailsjs/go/filesystem/Dialog";
     import {onDestroy, onMount} from "svelte";
+    import {EventsEmit} from "../wailsjs/runtime";
 
     let isExplorerOpen: boolean = $state<boolean>(true);
 
@@ -22,6 +24,7 @@
             const {commonPrefix, paths: items} = removeCommonPrefix(paths);
             fileManagement.tree = buildTree(items);
             fileManagement.folderPath = commonPrefix;
+            EventsEmit("files", true);
             if (paths.length > 0) {
                 for (const [key, value] of Object.entries(fileManagement.tree)) {
                     if (typeof value === 'string') {
@@ -46,11 +49,14 @@
     };
 
     const closeFile = (path: string) => {
+        if (path === '')
+            return;
+
         delete fileManagement.files[path];
 
         if (!fileManagement.files[fileManagement.currentPath]) {
             const paths: string[] = Object.keys(fileManagement.files);
-            fileManagement.currentPath = path.length > 0 ? paths[0] : null;
+            fileManagement.currentPath = paths.length > 0 ? paths[0] : null;
         }
     };
 
@@ -60,6 +66,7 @@
             const {commonPrefix, paths: items} = removeCommonPrefix(paths);
             fileManagement.tree = buildTree(items);
             fileManagement.folderPath = commonPrefix;
+            EventsEmit("files", true);
         }).catch((error: any) => {
             MessageInfoDialog('Error', error);
         });
@@ -68,8 +75,32 @@
     const closeFolder = () => {
         fileManagement.tree = {};
         fileManagement.files = {};
+        fileManagement.obfuscated = {};
         fileManagement.folderPath = '';
         fileManagement.currentPath = '';
+    };
+
+    const obfuscate = (path: string) => {
+        Obfuscate(fileManagement.folderPath + '/' + path).then((content: string) => {
+            fileManagement.obfuscated[path] = content;
+        }).catch((error: any) => {
+            MessageInfoDialog('Error', error);
+        });
+    };
+
+    const obfuscateAll = () => {
+        const paths: string[] = flattenTree(fileManagement.tree);
+        Promise.all(
+            paths.map(path =>
+                Obfuscate(fileManagement.folderPath + '/' + path)
+                    .then((content: string) => fileManagement.obfuscated[path] = content)
+                    .catch((error: any) => MessageInfoDialog('Error', error))
+            )
+        );
+    };
+
+    const undo = (path: string) => {
+        delete fileManagement.obfuscated[path];
     };
 
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
@@ -86,6 +117,12 @@
         window?.runtime?.EventsOn("menu:open-folder", openFolder);
         window?.runtime?.EventsOn("menu:close", () => closeFile(fileManagement.currentPath));
         window?.runtime?.EventsOn("menu:close-folder", closeFolder);
+
+        window?.runtime?.EventsOn("run:undo", () => undo(fileManagement.currentPath));
+        window?.runtime?.EventsOn("run:undo-all", () => fileManagement.obfuscated = {});
+
+        window?.runtime?.EventsOn("run:obfuscate", () => obfuscate(fileManagement.currentPath));
+        window?.runtime?.EventsOn("run:obfuscate-all", obfuscateAll);
     });
 </script>
 

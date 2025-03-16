@@ -51,7 +51,7 @@ func (d *Dialog) OpenDirectoryDialog() ([]string, error) {
 	}
 
 	if path == "" {
-		return nil, errors.New("could not open folder")
+		return []string{}, nil
 	}
 
 	skipDirs := map[string]bool{

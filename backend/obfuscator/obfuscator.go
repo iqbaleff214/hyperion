@@ -10,17 +10,17 @@ import (
 
 type Obfuscator struct {
 	ctx    context.Context
-	config Config
+	config *Config
 }
 
-func NewObfuscator(config Config) *Obfuscator {
+func NewObfuscator(config *Config) *Obfuscator {
 	return &Obfuscator{
 		config: config,
 	}
 }
 
 type IObfuscation interface {
-	SingleLine(code string) (string, error)
+	Minify(code string) (string, error)
 	RefactorLoopStatement(code string) (string, error)
 	RefactorIfStatement(code string) (string, error)
 	RenameVariable(code string) (string, error)
@@ -31,10 +31,10 @@ type IObfuscation interface {
 
 func GetObfuscation(extension string) (IObfuscation, error) {
 	switch extension {
-	case "js":
+	case ".js":
 		return js.Obfuscation{}, nil
 	default:
-		return nil, errors.New("unknown obfuscation extension")
+		return nil, errors.New("unknown " + extension + " extension")
 	}
 }
 
@@ -102,8 +102,8 @@ func (o *Obfuscator) Obfuscate(path string) (string, error) {
 		}
 	}
 
-	if o.config.SingleLineOutput {
-		content, err = obfuscation.SingleLine(content)
+	if o.config.Minify {
+		content, err = obfuscation.Minify(content)
 		if err != nil {
 			return content, err
 		}
@@ -112,6 +112,6 @@ func (o *Obfuscator) Obfuscate(path string) (string, error) {
 	return content, nil
 }
 
-func (o *Obfuscator) Config() Config {
+func (o *Obfuscator) Config() *Config {
 	return o.config
 }

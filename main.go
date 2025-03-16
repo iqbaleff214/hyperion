@@ -25,7 +25,7 @@ func main() {
 	obfuscator := ob.NewObfuscator(config)
 
 	menuHelper := menu{}
-	menuHelper.setConfig(&config)
+	menuHelper.setConfig(config)
 	app := application.NewWithOptions(&options.App{
 		Title:     "hyperion",
 		Width:     1024,
@@ -40,7 +40,7 @@ func main() {
 			file.SetContext(ctx)
 			dialog.SetContext(ctx)
 			obfuscator.SetContext(ctx)
-			menuHelper.setContext(ctx)
+			menuHelper.startup(ctx)
 		},
 		Bind: []interface{}{
 			dialog, file, obfuscator,

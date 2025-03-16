@@ -8,18 +8,18 @@ import (
 )
 
 type Config struct {
-	SingleLineOutput bool `json:"single_line_output"`
-	StringLiteral    bool `json:"string_literal"`
-	LoopStatement    bool `json:"loop_statement"`
-	IfStatement      bool `json:"if_statement"`
-	ConstantName     bool `json:"constant_name"`
-	VariableName     bool `json:"variable_name"`
-	FunctionName     bool `json:"function_name"`
-	RemoveComments   bool `json:"remove_comments"`
-	path             string
+	Minify         bool `json:"minify"`
+	StringLiteral  bool `json:"string_literal"`
+	LoopStatement  bool `json:"loop_statement"`
+	IfStatement    bool `json:"if_statement"`
+	ConstantName   bool `json:"constant_name"`
+	VariableName   bool `json:"variable_name"`
+	FunctionName   bool `json:"function_name"`
+	RemoveComments bool `json:"remove_comments"`
+	path           string
 }
 
-func NewConfig() Config {
+func NewConfig() *Config {
 	var config Config
 
 	err := config.load()
@@ -33,7 +33,7 @@ func NewConfig() Config {
 
 	log.Println("Hyperion config:", config.path)
 
-	return config
+	return &config
 }
 
 func (config *Config) load() error {

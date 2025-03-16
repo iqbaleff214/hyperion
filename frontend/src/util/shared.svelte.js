@@ -5,6 +5,7 @@ export const theme = $state({
 export const fileManagement = $state({
     tree: {},
     files: {},
+    obfuscated: {},
     folderPath: '',
     currentPath: '',
 });

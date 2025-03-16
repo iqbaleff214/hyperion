@@ -22,7 +22,7 @@
     {#if (fileManagement.currentPath)}
     <div class="grow overflow-y-auto">
         <div class="text-sm font-mono">
-            {#each fileManagement.files[fileManagement.currentPath].split('\n') as row, i}
+            {#each (fileManagement.obfuscated[fileManagement.currentPath] ?? fileManagement.files[fileManagement.currentPath]).split('\n') as row, i}
                 <div class="flex gap-x-5 hover:bg-black/5 dark:hover:bg-white/10">
                     <div class="min-w-[30px] text-end text-neutral-400 dark:text-neutral-600">{i+1}</div>
                     <pre class="whitespace-pre-wrap text-neutral-600 dark:text-neutral-400 break-words">{row}</pre>

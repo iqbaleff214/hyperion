@@ -11,17 +11,39 @@ import (
 	"regexp"
 )
 
+const (
+	menuItemSave         = "save"
+	menuItemSaveAs       = "save_as"
+	menuItemClose        = "close"
+	menuItemCloseFolder  = "close_folder"
+	menuItemObfuscate    = "obfuscate"
+	menuItemObfuscateAll = "obfuscate_all"
+)
+
 type menu struct {
-	ctx    context.Context
-	config *obfuscator.Config
+	ctx        context.Context
+	config     *obfuscator.Config
+	items      map[string]*m.MenuItem
+	openedFile bool
 }
 
-func (mn *menu) setContext(ctx context.Context) {
+func (mn *menu) startup(ctx context.Context) {
 	mn.ctx = ctx
+	runtime.EventsOn(mn.ctx, "files", func(data ...any) {
+		mn.openedFile, _ = data[0].(bool)
+		if mn.openedFile {
+			mn.items[menuItemCloseFolder].Enable()
+			mn.items[menuItemObfuscateAll].Enable()
+		} else {
+			mn.items[menuItemCloseFolder].Disable()
+			mn.items[menuItemObfuscateAll].Disable()
+		}
+	})
 }
 
 func (mn *menu) setConfig(config *obfuscator.Config) {
 	mn.config = config
+	mn.items = make(map[string]*m.MenuItem)
 }
 
 func (mn *menu) createNewMenu(app *application.Application) *m.Menu {
@@ -36,37 +58,46 @@ func (mn *menu) createNewMenu(app *application.Application) *m.Menu {
 		runtime.EventsEmit(mn.ctx, "menu:open-folder")
 	})
 	fileMenu.AddSeparator()
-	fileMenu.AddText("Save", keys.CmdOrCtrl("s"), func(_ *m.CallbackData) {
+	mn.items[menuItemSave] = fileMenu.AddText("Save", keys.CmdOrCtrl("s"), func(_ *m.CallbackData) {
 		runtime.EventsEmit(mn.ctx, "menu:save")
 	})
-	fileMenu.AddText("Save As", keys.Combo("s", keys.ShiftKey, keys.CmdOrCtrlKey), func(_ *m.CallbackData) {
+	//mn.items[menuItemSave].Disable()
+	mn.items[menuItemSaveAs] = fileMenu.AddText("Save As", keys.Combo("s", keys.ShiftKey, keys.CmdOrCtrlKey), func(_ *m.CallbackData) {
 		runtime.EventsEmit(mn.ctx, "menu:save-as")
 	})
+	//mn.items[menuItemSaveAs].Disable()
 	fileMenu.AddSeparator()
-	fileMenu.AddText("Close", keys.CmdOrCtrl("w"), func(_ *m.CallbackData) {
+	mn.items[menuItemClose] = fileMenu.AddText("Close", keys.CmdOrCtrl("w"), func(_ *m.CallbackData) {
 		runtime.EventsEmit(mn.ctx, "menu:close")
 	})
-	fileMenu.AddText("Close Folder", keys.Combo("w", keys.ShiftKey, keys.CmdOrCtrlKey), func(_ *m.CallbackData) {
+	//mn.items[menuItemClose].Disable()
+	mn.items[menuItemCloseFolder] = fileMenu.AddText("Close Folder", keys.Combo("w", keys.ShiftKey, keys.CmdOrCtrlKey), func(_ *m.CallbackData) {
 		runtime.EventsEmit(mn.ctx, "menu:close-folder")
 	})
+	//mn.items[menuItemCloseFolder].Disable()
 	fileMenu.AddSeparator()
 	fileMenu.AddText("Quit", keys.CmdOrCtrl("q"), func(_ *m.CallbackData) {
 		app.Quit()
 	})
 
-	// Edit menu
-	//if rt.GOOS == "darwin" {
-	//	appMenu.Append(m.EditMenu()) // on macos platform, we should append EditMenu to enable Cmd+C,Cmd+V,Cmd+Z... shortcut
-	//}
-
 	// Run Menu
 	runMenu := appMenu.AddSubmenu("Run")
-	runMenu.AddText("Obfuscate", keys.CmdOrCtrl("r"), func(_ *m.CallbackData) {
-		println("Obfuscate clicked")
+	mn.items[menuItemObfuscate] = runMenu.AddText("Obfuscate", keys.CmdOrCtrl("r"), func(_ *m.CallbackData) {
+		runtime.EventsEmit(mn.ctx, "run:obfuscate")
 	})
-	runMenu.AddText("Obfuscate All", keys.Combo("r", keys.ShiftKey, keys.CmdOrCtrlKey), func(_ *m.CallbackData) {
-		println("Obfuscate All clicked")
+	//mn.items[menuItemObfuscate].Disable()
+	mn.items[menuItemObfuscateAll] = runMenu.AddText("Obfuscate All", keys.Combo("r", keys.ShiftKey, keys.CmdOrCtrlKey), func(_ *m.CallbackData) {
+		runtime.EventsEmit(mn.ctx, "run:obfuscate-all")
 	})
+	//mn.items[menuItemObfuscateAll].Disable()
+	runMenu.AddSeparator()
+	runMenu.AddText("Cancel Obfuscation", keys.CmdOrCtrl("e"), func(_ *m.CallbackData) {
+		runtime.EventsEmit(mn.ctx, "run:undo")
+	})
+	runMenu.AddText("Cancel All Obfuscation", keys.Combo("e", keys.ShiftKey, keys.CmdOrCtrlKey), func(_ *m.CallbackData) {
+		runtime.EventsEmit(mn.ctx, "run:undo-all")
+	})
+	runMenu.AddSeparator()
 
 	// Configuration Submenu
 	configMenu := runMenu.AddSubmenu("Configuration")

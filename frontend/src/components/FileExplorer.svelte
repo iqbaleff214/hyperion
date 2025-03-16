@@ -16,6 +16,16 @@
     const toggleFolder = (path: string) => {
         openFolders[path] = !openFolders[path];
     };
+
+    const textClass = (name: string, value: string): string => {
+        if (value in fileManagement.obfuscated)
+            return 'text-lime-600 hover:text-lime-700';
+
+        if (fileManagement.currentPath === value)
+            return 'dark:text-neutral-200 text-neutral-800 hover:dark:text-neutral-200 hover:text-neutral-800';
+
+        return 'text-neutral-500 hover:dark:text-neutral-200 hover:text-neutral-800';
+    }
 </script>
 
 <div class="py-1.5 px-3 mb-1 flex flex-col items.start border-b border-black/15 dark:border-white/15">
@@ -45,7 +55,7 @@
                         </div>
                     {/if}
                 {:else if typeof value === "string"}
-                    <button class="cursor-pointer w-full text-start truncate flex items-center gap-x-1 text-sm font-light { fileManagement.currentPath === value ? 'dark:text-neutral-200 text-neutral-800' : 'text-neutral-500'} hover:dark:text-neutral-200 hover:text-neutral-800"
+                    <button class="cursor-pointer w-full text-start truncate flex items-center gap-x-1 text-sm font-light { textClass(name, value) }"
                             onclick={() => readFile(value)}>
                         <FileExtensionIcon path={name}/>
                         <span class="truncate">{name}</span>

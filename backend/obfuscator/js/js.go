@@ -9,9 +9,20 @@ import (
 
 type Obfuscation struct{}
 
-// SingleLine
-// TODO: self-explanatory
-func (o Obfuscation) SingleLine(code string) (string, error) {
+// Minify - it removes comments, excessive spaces, and newlines while preserving functionality.
+func (o Obfuscation) Minify(code string) (string, error) {
+	var err error
+	code, err = o.RemoveComment(code)
+	if err != nil {
+		return code, err
+	}
+
+	code = strings.ReplaceAll(code, "\n", " ")
+	code = strings.ReplaceAll(code, "\t", " ")
+	code = regexp.MustCompile(`\s+`).ReplaceAllString(code, " ")
+
+	code = regexp.MustCompile(`\s*([{}();=,+<>*/\-])\s*`).ReplaceAllString(code, "$1")
+
 	return code, nil
 }
 

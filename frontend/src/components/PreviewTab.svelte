@@ -39,7 +39,7 @@
                  role="none"
                  class="ps-1.5 pe-6 text-sm font-light hover:dark:text-neutral-200 hover:text-neutral-800 flex items-center justify-start gap-x-1 relative truncate {fileManagement.currentPath === tab ? 'border-b-2 border-blue-500 text-neutral-800 dark:text-neutral-200' : 'text-neutral-500'} ">
                 <FileExtensionIcon path={tab}/>
-                <span class="truncate cursor-pointer">{tab?.split('/').pop()}</span>
+                <span class="truncate cursor-pointer { paths[i] in fileManagement.obfuscated ? 'text-lime-600 font-medium' : '' }">{tab?.split('/').pop()}</span>
 
                 {#if (hovered === i)}
                     <button class="hover:bg-neutral-200 dark:hover:bg-neutral-700 rounded-full p-[1px] absolute right-1.5"

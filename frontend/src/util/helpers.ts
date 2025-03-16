@@ -19,9 +19,27 @@ export function buildTree(paths: string[]): Record<string, any> {
     return tree;
 }
 
+export function flattenTree(tree: Record<string, any>, prefix = ""): string[] {
+    let paths: string[] = [];
+
+    for (const key in tree) {
+        const fullPath = prefix ? `${prefix}/${key}` : key;
+
+        if (typeof tree[key] === "string") {
+            paths.push(tree[key]);
+        } else {
+            paths = paths.concat(flattenTree(tree[key], fullPath));
+        }
+    }
+
+    return paths;
+}
+
 export function removeCommonPrefix(paths: string[]): { commonPrefix: string, paths: string[] } {
     if (paths.length === 0)
         return { commonPrefix: "", paths: [] };
+
+    paths = paths.map(path => path.replace(/\\/g, "/"));
 
     if (paths.length === 1) {
         const path = paths[0];
