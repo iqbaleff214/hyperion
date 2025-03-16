@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"hyperion/backend/obfuscator/js"
+	"hyperion/backend/obfuscator/php"
 	"os"
 	"path/filepath"
 )
@@ -33,6 +34,8 @@ func GetObfuscation(extension string) (IObfuscation, error) {
 	switch extension {
 	case ".js":
 		return js.Obfuscation{}, nil
+	case ".php":
+		return php.Obfuscation{}, nil
 	default:
 		return nil, errors.New("unknown " + extension + " extension")
 	}
